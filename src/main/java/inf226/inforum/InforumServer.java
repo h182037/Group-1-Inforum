@@ -9,8 +9,12 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 
+import java.time.Instant;
+
 public class InforumServer extends AbstractHandler
 {
+  private final File style = new File("style.css");
+
   public void handle(String target,
                      Request baseRequest,
                      HttpServletRequest request,
@@ -18,7 +22,7 @@ public class InforumServer extends AbstractHandler
     throws IOException, ServletException
   {
     if (target.equals("/style.css")) {
-        serveFile(response,new File("style.css"),"text/css;charset=utf-8");
+        serveFile(response,style,"text/css;charset=utf-8");
         baseRequest.setHandled(true);
     } else {
         response.setContentType("text/html;charset=utf-8");
@@ -36,6 +40,23 @@ public class InforumServer extends AbstractHandler
         response.getWriter().println("</body>");
         response.getWriter().println("</html>");
     }
+  }
+
+  private void printThread(PrintWriter w, Thread thread) {
+    // TODO: Prevent XSS
+    w.println("<section>");
+    w.println("  <header class=\"thread-head\">");
+    w.println("<h2 class=\"topic\">" + thread.topic + "</h2>");
+    try {
+       final String starter = thread.messages.last.get().value.sender;
+       final Instant date = thread.messages.last.get().value.date;
+       w.println("<div class=\"starter\">" + starter + "</div>");
+       w.println("<div class=\"date\">" + date.toString() + "</div>");
+    } catch(Maybe.NothingException e) {
+       w.println("<p>This thread is empty.</p>");
+    }
+    w.println("  </header>");
+    // TODO: Print messages.
   }
 
   private void serveFile(HttpServletResponse response, File file, String contentType) {
