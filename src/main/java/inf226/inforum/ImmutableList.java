@@ -3,13 +3,25 @@ package inf226.inforum;
 import inf226.inforum.Maybe;
 
 public final class ImmutableList<T> {
-   Maybe<ListItem<T> > items;
+   private final Maybe<ListItem<T> > items;
+   public final Maybe<T> last;
    
    private ImmutableList() {
       this.items = Maybe.nothing();
+      this.last = Maybe.nothing();
    }
    private ImmutableList(T head, ImmutableList<T> tail) {
       this.items = new Maybe<ListItem<T>>(new ListItem<T>(head, tail));
+
+      /* Construct a reference to the last element of
+         the list. */
+      T new_last;
+      try {
+         new_last = tail.last.get();
+      } catch (Maybe.NothingException e) {
+         new_last = head;
+      }
+      this.last = new Maybe<T>(new_last);
    }
 
    public static<U> ImmutableList<U> empty() {
