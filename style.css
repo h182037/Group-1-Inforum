@@ -6,34 +6,67 @@ body{
     max-width: 50em;
     padding: 30px;
     text-align: justify;
+    border-radius: 1em;
 }
-h1, h2, h3, h4 {
-    color: #000000;
-    font-weight: 400;
-    max-width: 40em;
+
+.thread-head {
+   display: grid;
+   margin: 0;
+   padding: 0.1em 0.1em 0.1em
+   grid-template-columns: auto auto;
+   grid-template-areas:
+           "topic topic"
+           "starter date";
 }
-h1, h2, h3, h4, h5, p {
-    margin-bottom: 24px;
-    padding: 0;
+
+.starter{
+	grid-area: starter;
+   margin: 0 0 0 0;
+   padding: 0.1em 0.1em 1em 0.1em;
+	background-color: #e0f0ff;
+	border: 0.1em solid #88bbff;
 }
-h1 {
-    font-size: 48px;
+
+.date{
+   grid-area: date;
+   margin: 0 0 0 0;
+   padding: 0.1em 0.1em 1em 0.1em;
+	background-color: #e0f0ff;
+	border: 0.1em solid #88bbff;
 }
-h2 {
-    font-size: 36px;
-    /* The bottom margin is small. It's designed to be used with gray meta text
-     * below a post title. */
-    margin: 24px 0 6px;
+
+.topic {
+	grid-area: topic;
+   margin: 0;
+   padding: 0.8em 0.8em 0.5em 0.8em;
+   border-top-left-radius: 1em;
+   border-top-right-radius: 1em;
+	background-color: #88bbff;
 }
-h3 {
-    font-size: 24px;
+
+.entry {
+   display: grid;
+   margin: 0;
+   padding: 0.1em 0.1em 0.1em
+   grid-template-columns: 10em auto;
+   grid-template-areas:
+           "user text"
+           "footer footer";
+	background-color: #ffffff;
+	border: 0.1em solid #88bbff;
 }
-h4 {
-    font-size: 21px;
+.user{
+	grid-area: user;
+   margin: 0 0 0 0;
+   padding: 0.1em 0.1em 1em 0.1em;
 }
-h5 {
-    font-size: 18px;
+.text{
+   grid-area: text;
+   margin: 0 0 0 0;
+   padding: 0.1em 0.1em 1em 0.1em;
 }
+
+
 
 .author:before {
     content: "—";
@@ -42,6 +75,17 @@ h5 {
     color: #505050;
     margin-left: 1em;
 }
+
+h2 {
+	font-size: 2.3em;
+	font-weight: normal;
+}
+
+p {
+   margin-top: 0;
+   margin-bottom: 1em;
+}
+
 a {
     color: #0066CC;
     margin: 0;
@@ -61,10 +105,6 @@ a:visited {
 a:after {
   content: "";
   font-size: small;
-}
-
-.footnoteRef:after {
-  content: "";
 }
 
 ul, ol {
@@ -130,13 +170,5 @@ hr {
 
 figure, img {
    max-width: 36em;
-}
-
-.footnotes {
-    max-width: 40em;
-}
-
-.comments {
-    max-width: 40em;
 }
 
