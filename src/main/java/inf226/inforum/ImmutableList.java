@@ -1,6 +1,8 @@
 package inf226.inforum;
 
 import inf226.inforum.Maybe;
+import java.util.function.Function;
+import java.util.function.Consumer;
 
 public final class ImmutableList<T> {
    private final Maybe<ListItem<T> > items;
@@ -45,6 +47,49 @@ public final class ImmutableList<T> {
          return Maybe.nothing();
       }
    }
+
+   public<U> ImmutableList<U> map(Function<T,U> f) {
+    ImmutableList<U> result = empty();
+    try {
+       for(ImmutableList<T> l = this.reverse(); ; l = l.tail().get()) {
+          result = result.cons(f.apply(l.head().get()), result);
+       }
+    } catch (Maybe.NothingException e) {
+       // No more elements
+    }
+    return result;
+   }
+
+   public void consume(Consumer<T> c) {
+      sequenceConsumer(c).accept(this);
+   }
+
+   public static<U> Consumer<ImmutableList<U>> sequenceConsumer(Consumer<U> c) {
+    return new Consumer<ImmutableList<U>>(){
+         @Override
+         public void accept(ImmutableList<U> l) { 
+            try {
+               for(ListItem<U> e = l.items.get(); ; e = e.tail.items.get()) {
+                  c.accept(e.head);
+               }
+            } catch (Maybe.NothingException e) {
+               // No more elements
+            }
+        } };
+   }
+
+   public ImmutableList<T> reverse() {
+    ImmutableList<T> result = empty();
+    try {
+       for(ListItem<T> e = this.items.get(); ; e = e.tail.items.get()) {
+          result = result.cons(e.head, result);
+       }
+    } catch (Maybe.NothingException e) {
+       // No more elements
+    }
+    return result;
+   }
+
 
    private static class ListItem<T> {
       public final T head;
