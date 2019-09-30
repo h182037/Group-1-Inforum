@@ -60,7 +60,7 @@ public final class ImmutableList<T> {
     return result;
    }
 
-   public void consume(Consumer<T> c) {
+   public void forEach(Consumer<T> c) {
       sequenceConsumer(c).accept(this);
    }
 
@@ -78,6 +78,14 @@ public final class ImmutableList<T> {
         } };
    }
 
+   public static class Builder<U> implements Consumer<U> {
+      private ImmutableList<U> list;
+      public Builder() { list = empty(); }
+      @Override
+      public synchronized void accept(U element) { list = cons(element, list) ; }
+      public ImmutableList<U> getList() { return list ; }
+   }
+
    public ImmutableList<T> reverse() {
     ImmutableList<T> result = empty();
     try {
@@ -90,6 +98,7 @@ public final class ImmutableList<T> {
     return result;
    }
 
+   public static<U> Builder<U> builder(){return new Builder<U>();}
 
    private static class ListItem<T> {
       public final T head;

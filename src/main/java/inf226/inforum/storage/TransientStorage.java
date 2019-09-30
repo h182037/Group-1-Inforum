@@ -10,7 +10,7 @@ import java.util.UUID;
 
 
 public class TransientStorage<T>
-      implements Storage<T, String, IOException> {
+      implements Storage<T, UUID, IOException> {
 
    private final Map<UUID,Stored<T>> objects 
       = Collections.synchronizedMap
@@ -50,9 +50,21 @@ public class TransientStorage<T>
       objects.remove(stored.identity);
    }
 
-   public ImmutableList< Stored<T> > lookup(String query)
+   public synchronized Stored<T> renew(Stored<T> object)
+      throws DeletedException, IOException {
+      final Stored<T> stored = objects.get(object.identity);
+      if (stored == null) {
+         throw new DeletedException();
+      }
+      return stored;
+   }
+
+   public ImmutableList< Stored<T> > lookup(UUID query)
       throws IOException {
-      return ImmutableList.empty();
+      final ImmutableList.Builder<Stored<T>> result
+           = new ImmutableList.Builder<Stored<T>>();
+      (new Maybe<Stored<T>>(objects.get(query))).forEach(result);
+      return result.getList();
    }
 }
 
