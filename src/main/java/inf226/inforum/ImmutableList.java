@@ -48,6 +48,10 @@ public final class ImmutableList<T> {
       }
    }
 
+   public ImmutableList add(T element) {
+      return cons(element, this);
+   }
+
    public<U> ImmutableList<U> map(Function<T,U> f) {
     ImmutableList<U> result = empty();
     try {
