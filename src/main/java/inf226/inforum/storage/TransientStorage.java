@@ -66,5 +66,18 @@ public class TransientStorage<T>
       (new Maybe<Stored<T>>(objects.get(query))).forEach(result);
       return result.getList();
    }
+
+   public synchronized ImmutableList<Stored<T>> getAll() {
+      final ImmutableList.Builder<Stored<T>> builder = ImmutableList.builder();
+
+      for(Stored<T> element : objects.values()) {
+          builder.accept(element);
+      }
+      return builder.getList();
+   }
+
+   public synchronized void clear(){
+      objects.clear();
+   }
 }
 

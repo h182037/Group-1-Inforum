@@ -8,6 +8,10 @@ public class Mutable<A> implements Consumer<A>{
      this.value = value;
    }
 
+   public static<U> Mutable<U> init(U value) {
+     return new Mutable<U>(value);
+   }
+ 
    @Override
    public void accept(A value) {
       this.value = value;
