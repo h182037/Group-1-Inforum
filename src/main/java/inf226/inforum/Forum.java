@@ -5,10 +5,10 @@ import inf226.inforum.storage.Stored;
 public class Forum {
    public final String handle;
    public final String name;
-   public final ImmutableList<Thread> threads;
-   public final ImmutableList<Forum> subforums;
+   public final ImmutableList<Stored<Thread>> threads;
+   public final ImmutableList<Stored<Forum>> subforums;
 
-   public Forum(String handle, String name, ImmutableList<Thread> threads, ImmutableList<Forum> subforums) {
+   public Forum(String handle, String name, ImmutableList<Stored<Thread>> threads, ImmutableList<Stored<Forum>> subforums) {
       // TODO: Verify that handle is URL safe.
       this.handle = handle;
       this.name = name;
@@ -23,12 +23,12 @@ public class Forum {
       this.subforums = ImmutableList.empty();
    }
 
-   Pair<Forum,String> resolveSubforum(String path) {
-     Mutable<Pair<Forum,String>> result
-        = new Mutable<Pair<Forum,String>>(Pair.pair(this,path));
-     subforums.forEach( forum -> {
-         if (path.startsWith(forum.handle + "/")) {
-            result.accept(forum.resolveSubforum(path.substring(forum.handle.length() + 1)));
+   public static Pair<Stored<Forum>,String> resolveSubforum(Stored<Forum> that , String path) {
+     Mutable<Pair<Stored<Forum>,String>> result
+        = new Mutable<Pair<Stored<Forum>,String>>(Pair.pair(that,path));
+     that.value.subforums.forEach( forum -> {
+         if (path.startsWith(forum.value.handle + "/")) {
+            result.accept(resolveSubforum(forum,path.substring(forum.value.handle.length() + 1)));
          } });
      return result.get();
    }

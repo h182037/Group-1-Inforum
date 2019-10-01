@@ -42,17 +42,15 @@ public class InforumServer extends AbstractHandler
         final Stored<UserContext> context = contextStorage.lookup(contextID).head().get();
 
         if (target.startsWith(view_thread_path)) {
-           final String forum_path = target.substring(view_thread_path.length());
-           context.value.forums.forEach( forum ->{
-                if (forum_path.startsWith(forum.value.handle + "/")) {
-                    Pair<Forum,String> pair = forum.value.resolveSubforum(forum_path.substring(forum.value.handle.length() + 1));
-                    Forum subforum = pair.first;
-                    UUID threadID = UUID.fromString(pair.second);
-                    subforum.threads.forEach(thread -> {
-                        // TODO check if this is the correct forum and print it.
-                    });
-                }});
-                   
+           // TODO: Display forum
+
+           Maybe<Either<Stored<Forum>,Stored<Thread>>>
+             resolved = resolvePath(target.substring(view_thread_path.length()), context.value);
+           resolved.get().branch(
+               forum -> { return ;},
+               thread -> { try {
+                             printThread(response.getWriter(), thread.value);
+                           } catch (IOException e) { }} );
         }
     } catch (Maybe.NothingException e) {
         // User is not logged in.
@@ -82,6 +80,28 @@ public class InforumServer extends AbstractHandler
         response.getWriter().println("</body>");
         response.getWriter().println("</html>");
     }
+  }
+
+  private Maybe<Either<Stored<Forum>,Stored<Thread>>>
+       resolvePath(final String forum_path, final UserContext context) {
+   final Maybe.Builder<Either<Stored<Forum>,Stored<Thread>>> result = Maybe.builder();
+   context.forums.forEach( forum ->{
+                if (forum_path.startsWith(forum.value.handle + "/")) {
+                    final Pair<Stored<Forum>,String>
+                      pair = Forum.resolveSubforum(forum,forum_path.substring(forum.value.handle.length() + 1));
+                    final Stored<Forum> subforum = pair.first;
+                    final String remaining_path = pair.second;
+                    if (remaining_path.equals("")) {
+                        result.accept(Either.left(subforum));
+                    } else {
+                       UUID threadID = UUID.fromString(pair.second);
+                       subforum.value.threads.forEach(thread -> {
+                         if(thread.identity.equals(threadID))
+                            result.accept(Either.right(thread));
+                       });
+                    }
+                }});
+    return result.getMaybe();
   }
 
   private void printThread(PrintWriter w, Thread thread) {
