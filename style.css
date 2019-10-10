@@ -19,6 +19,17 @@ body{
            "starter date";
 }
 
+.forum-head {
+   display: grid;
+   margin: 0;
+   padding: 0.1em 0.1em 0.1em;
+   grid-template-columns: 20% auto;
+   grid-template-areas:
+           "topic topic"
+           "symbol description";
+}
+
+
 .starter{
    grid-area: starter;
    margin: 0 0 0 0;
@@ -42,7 +53,7 @@ body{
    padding: 0.8em 0.8em 0.5em 0.8em;
    border-top-left-radius: 1em;
    border-top-right-radius: 1em;
-	background-color: #88bbff;
+   background-color: #88bbff;
 }
 
 .entry {
@@ -173,3 +184,17 @@ figure, img {
    max-width: 36em;
 }
 
+.controls {
+   grid-area: footer;
+   float: right;
+}
+
+input[type=submit] {
+   border: 0.1em solid #88bbff;
+   margin-right: 0.5em;
+}
+
+input[type=submit]:hover {
+   background-color: #88bbff;
+   margin-right: 0.5em;
+}

@@ -39,7 +39,6 @@ public class InforumServer extends AbstractHandler
     final Map<String,Cookie> cookies = new TreeMap<String,Cookie>();
     final Cookie[] carray = request.getCookies();
     if(carray != null) {
-       System.out.println("There are cookies.");
        for(int i = 0; i < carray.length; ++i) {
          cookies.put(carray[i].getName(),carray[i]);
        }
@@ -60,24 +59,14 @@ public class InforumServer extends AbstractHandler
     final Maybe<Cookie> userCookie = new Maybe<Cookie>(cookies.get("session"));
 
     try { // All logged in actions go inside this try.
-        System.out.println("Do we have a valid session cookie?");
         final UUID contextID = UUID.fromString(userCookie.get().getValue());
-        System.out.println("The session id is a UUID");
         final Stored<UserContext> context = contextStorage.lookup(contextID).head().get();
-        System.out.println("Got to the context noprob");
-        if (target.equals("/post")) {
-            System.out.println("Posting a message.");
-            final String messageText = new Maybe<String>(request.getParameter("message")).get();
-            System.out.println("Was able to extract text.");
-            example_thread.accept(example_thread.get().addMessage(new Message(context.value.username,messageText, Instant.now())));
-        }
         if (target.startsWith(view_thread_path)) {
-           // TODO: Display forum
-
            Maybe<Either<Stored<Forum>,Stored<Thread>>>
              resolved = resolvePath(target.substring(view_thread_path.length()), context.value);
            resolved.get().branch(
-               forum -> { return ;},
+               forum -> { return ; // TODO: Display forum
+                         },
                thread -> { try {
                              printThread(response.getWriter(), thread.value);
                            } catch (IOException e) { }} );
@@ -140,6 +129,27 @@ public class InforumServer extends AbstractHandler
     return result.getMaybe();
   }
 
+  private void printForum(final PrintWriter w, final Forum forum) {
+    w.println("<section>");
+    w.println("  <header class=\"forum-head\">");
+    w.println("  <h2 class=\"topic\">" + forum.name + "</h2>");
+    w.println("  </header>");
+    w.println("  <section>");
+    w.println("  <header><h3>Subforums</h3></header>");
+    w.println("  <list class=\"subforum\">");
+    forum.subforums.forEach(
+        subforum -> { w.println("    <li>" + "<a href=\"" + subforum.value.handle + "/\">" + subforum.value.name  + "</a></li>") ; });
+    w.println("  </list>");
+    w.println("  </section>");
+    w.println("  <section class=\"forum-threads\">");
+    w.println("  <header><h3>Threads</h3></header>");
+    forum.threads.forEach(
+        thread -> { w.println("    <div class=\"thread-stub\">" + "<a href=\"" + thread.identity + "/\">" + thread.value.topic  + "</a></div>") ; });
+    w.println("  </section>");
+    w.println("</section>");
+    
+  }
+
   private void printThread(PrintWriter w, Thread thread) {
     // TODO: Prevent XSS
     w.println("<section>");
@@ -158,6 +168,11 @@ public class InforumServer extends AbstractHandler
          w.println("  <div class=\"entry\">");
          w.println("     <div class=\"user\">" + m.sender + "</div>");
          w.println("     <div class=\"text\">" + m.message + "</div>");
+         w.println("     <form class=\"controls\" action=\"message_action\" method=\"POST\">");
+         w.println("        <input class=\"controls\" name=\"messageid\" type=\"hidden\" value=\"\">");
+         w.println("        <input class=\"controls\" type=\"submit\" name=\"edit\" value=\"Edit\"/>\n");
+         w.println("        <input class=\"controls\" type=\"submit\" name=\"delete\" value=\"Delete\"/>\n");
+         w.println("     </form>");
          w.println("  </div>");
      });
     w.println("</section>");

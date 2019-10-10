@@ -3,7 +3,7 @@ package inf226.inforum;
 import java.time.Instant;
 
 
-class Message {
+public class Message {
    public final String sender; // User name of sender
    public final String message;
    public final Instant date; // Date of posting.
