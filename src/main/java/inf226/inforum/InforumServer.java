@@ -182,7 +182,14 @@ public class InforumServer extends AbstractHandler
       response.setContentType(contentType);
       try {
         final InputStream is = new FileInputStream(file);
-        is.transferTo(response.getOutputStream());
+        // Better if we can upgrade to JDK 1.9: is.transferTo(response.getOutputStream());
+        final OutputStream os = response.getOutputStream();
+        final byte[] buffer = new byte[1024];
+        for(int len = is.read(buffer);
+                len >= 0;
+                len = is.read(buffer)) {
+           os.write(buffer, 0, len);
+        }
         is.close();
         response.setStatus(HttpServletResponse.SC_OK);
       } catch (IOException e) {
