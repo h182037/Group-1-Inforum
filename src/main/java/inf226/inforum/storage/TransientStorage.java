@@ -32,7 +32,7 @@ public class TransientStorage<T>
       if (!stored.version.equals(object.version)) {
          throw new UpdatedException(stored);
       }
-      final Stored<T> new_stored = stored.newVersion();
+      final Stored<T> new_stored = stored.newVersion(new_object);
       objects.put(new_stored.identity, new_stored);
       return new_stored;
    }

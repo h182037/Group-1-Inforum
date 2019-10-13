@@ -33,8 +33,8 @@ public class Stored<T> {
 
   }
 
-  Stored<T> newVersion() {
-     return new Stored<T>(value , identity, UUID.randomUUID());
+  Stored<T> newVersion(T newValue) {
+     return new Stored<T>(newValue , identity, UUID.randomUUID());
   }
 }
 
