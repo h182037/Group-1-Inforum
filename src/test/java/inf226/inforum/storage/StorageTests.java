@@ -26,7 +26,7 @@ public class StorageTests{
             Stored<U> stored = storage.save(value);
             assertTrue(stored.value.equals(value));
         } catch (Exception exception) {
-            fail("Could not save to storage.");
+            fail("Could not save to storage:\n" + exception.toString());
         }
     }
     private<U,Q,E extends Exception> void testStorageUpdate(Storage<U,Q,E> storage, U value0, U value1) {
@@ -44,16 +44,29 @@ public class StorageTests{
                 }
             }
         } catch (Exception exception) {
-            fail("Could not save to storage.");
+            fail(exception);
         }
     }
 
     @Test
     void testMessageStorageSave() {
         try{
-            MessageStorage storage = new MessageStorage("test-message-store.db");
+            MessageStorage storage = new MessageStorage(":memory:");
+            storage.initialise();
             Message message = new Message("Alice","Hello world!",Instant.now());
             testStorageSave(storage,message);
+        } catch (Exception e) {
+            fail(e);
+        }
+    }
+    @Test
+    void testMessageStorageUpdate() {
+        try{
+            MessageStorage storage = new MessageStorage(":memory:");
+            storage.initialise();
+            Message message0 = new Message("Alice","Hello world!",Instant.now());
+            Message message1 = new Message("Bob","Hello Alice!",Instant.now());
+            testStorageUpdate(storage,message0,message1);
         } catch (Exception e) {
             fail(e);
         }
