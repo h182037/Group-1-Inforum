@@ -39,11 +39,11 @@ public class MessageStorage implements Storage<Message,String,SQLException>, Clo
 
    public void initialise() throws SQLException {
        connection.createStatement()
-                 .executeUpdate("CREATE TABLE IF NOT EXISTS Message (id TEXT, version TEXT, sender TEXT, message TEXT, date TEXT) PRIMARY KEY (id)");
+                 .executeUpdate("CREATE TABLE IF NOT EXISTS Message (id TEXT PRIMARY KEY, version TEXT, sender TEXT, message TEXT, date TEXT)");
    }
 
    private Stored<Message> getCurrent(UUID id) throws DeletedException,SQLException {
-      final String sql = "SELECT (version,sender,message,date) FROM Message WHERE id='" + id.toString() + "'";
+      final String sql = "SELECT version,sender,message,date FROM Message WHERE id = '" + id.toString() + "'";
       final Statement statement = connection.createStatement();
       final ResultSet rs = statement.executeQuery(sql);
 
@@ -61,11 +61,11 @@ public class MessageStorage implements Storage<Message,String,SQLException>, Clo
    @Override
    public Stored<Message> save(Message message) throws SQLException {
      final Stored<Message> stored = new Stored<Message>(message);
-     String sql =  "INSERT INTO Message VALUES(" + stored.identity + ","
-                                                 + stored.version  + ","
-                                                 + message.sender  + ","
-                                                 + message.message + ","
-                                                 + message.date.toString() + ")";
+     String sql =  "INSERT INTO Message VALUES('" + stored.identity + "','"
+                                                 + stored.version  + "','"
+                                                 + message.sender  + "','"
+                                                 + message.message + "','"
+                                                 + message.date.toString() + "')";
      connection.createStatement().executeUpdate(sql);
      return stored;
    }
@@ -74,12 +74,12 @@ public class MessageStorage implements Storage<Message,String,SQLException>, Clo
    public synchronized Stored<Message> update(Stored<Message> message, Message new_message) throws UpdatedException,DeletedException,SQLException {
      final Stored<Message> current = getCurrent(message.identity);
      final Stored<Message> updated = current.newVersion(new_message);
-     if(current.version == message.version) {
-        String sql =  "REPLACE INTO Message VALUES(" + updated.identity + ","
-                                                     + updated.version  + ","
-                                                     + new_message.sender  + ","
-                                                     + new_message.message + ","
-                                                     + new_message.date.toString() + ")";
+     if(current.version.equals(message.version)) {
+        String sql =  "REPLACE INTO Message VALUES('" + updated.identity + "','"
+                                                     + updated.version  + "','"
+                                                     + new_message.sender  + "','"
+                                                     + new_message.message + "','"
+                                                     + new_message.date.toString() + "')";
         connection.createStatement().executeUpdate(sql);
      } else {
         throw new UpdatedException(current);
