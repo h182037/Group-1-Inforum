@@ -156,15 +156,16 @@ public class InforumServer extends AbstractHandler
     w.println("  <header class=\"thread-head\">");
     w.println("  <h2 class=\"topic\">" + thread.topic + "</h2>");
     try {
-       final String starter = thread.messages.last.get().sender;
-       final Instant date = thread.messages.last.get().date;
+       final String starter = thread.messages.last.get().value.sender;
+       final Instant date = thread.messages.last.get().value.date;
        w.println("  <div class=\"starter\">" + starter + "</div>");
        w.println("  <div class=\"date\">" + date.toString() + "</div>");
     } catch(Maybe.NothingException e) {
        w.println("  <p>This thread is empty.</p>");
     }
     w.println("  </header>");
-    thread.messages.reverse().forEach (m -> {
+    thread.messages.reverse().forEach (sm -> {
+         final Message m = sm.value;
          w.println("  <div class=\"entry\">");
          w.println("     <div class=\"user\">" + m.sender + "</div>");
          w.println("     <div class=\"text\">" + m.message + "</div>");
@@ -199,8 +200,14 @@ public class InforumServer extends AbstractHandler
 
   public static void main(String[] args) throws Exception
   {
-    Message testMessage = new Message("Joe","<p> This a message. </p>", Instant.now());
-    Message testMessage2 = new Message("Bob","<p> This another message. </p>", Instant.now());
+    Stored<Message> testMessage 
+      = new Stored<Message>(new Message("Joe",
+                                        "<p> This a message. </p>",
+                                        Instant.now()));
+    Stored<Message> testMessage2
+      = new Stored<Message>(new Message("Bob",
+                                        "<p> This another message. </p>",
+                                        Instant.now()));
     example_thread.accept(
         new Thread("A serious discussion!",
           ImmutableList.cons(testMessage2,ImmutableList.cons(testMessage,ImmutableList.empty()))));

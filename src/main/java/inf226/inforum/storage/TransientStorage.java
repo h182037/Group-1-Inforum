@@ -50,9 +50,9 @@ public class TransientStorage<T>
       objects.remove(stored.identity);
    }
 
-   public synchronized Stored<T> renew(Stored<T> object)
+   public synchronized Stored<T> renew(UUID id)
       throws DeletedException, IOException {
-      final Stored<T> stored = objects.get(object.identity);
+      final Stored<T> stored = objects.get(id);
       if (stored == null) {
          throw new DeletedException();
       }
