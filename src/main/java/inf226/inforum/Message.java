@@ -26,5 +26,27 @@ public class Message {
       // TODO: Prevent XSS through message body.
       return message;
    }
+
+   @Override
+   public final boolean equals(Object other) {
+    if (other == null)
+        return false;
+    if (getClass() != other.getClass())
+        return false;
+    @SuppressWarnings("unchecked")
+    final Message message_other = (Message) other;
+    boolean equal = true;
+    if(sender == null) {
+       equal = equal && message_other.sender == null;
+    } else {
+       equal = equal && sender.equals(message_other.sender);
+    }
+    if(message == null) {
+       equal = equal && message_other.message == null;
+    } else {
+       equal = equal && message.equals(message_other.message);
+    }
+    return equal;
+   }
 }
 
