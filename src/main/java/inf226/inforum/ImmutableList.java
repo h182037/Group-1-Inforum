@@ -2,15 +2,18 @@ package inf226.inforum;
 
 import inf226.inforum.Maybe;
 import java.util.function.Function;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
 public final class ImmutableList<T> {
    private final Maybe<ListItem<T> > items;
    public final Maybe<T> last;
+   public final int length;
    
    private ImmutableList() {
       this.items = Maybe.nothing();
       this.last = Maybe.nothing();
+      this.length = 0;
    }
    private ImmutableList(T head, ImmutableList<T> tail) {
       this.items = new Maybe<ListItem<T>>(new ListItem<T>(head, tail));
@@ -24,6 +27,7 @@ public final class ImmutableList<T> {
          new_last = head;
       }
       this.last = new Maybe<T>(new_last);
+      this.length = tail.length + 1;
    }
 
    public static<U> ImmutableList<U> empty() {
@@ -62,6 +66,36 @@ public final class ImmutableList<T> {
        // No more elements
     }
     return result;
+   }
+
+   public<B,C> ImmutableList<C> zipWith(ImmutableList<B> other, BiFunction<T,B,C> f) {
+    Builder<C> result = builder();
+    try {
+       ImmutableList<T> l0 = this.reverse();
+       ImmutableList<B> l1 = other.reverse();
+       while(true) {
+           result.accept(f.apply(l0.items.get().head, l1.items.get().head));
+           l0 = l0.items.get().tail;
+           l1 = l1.items.get().tail; 
+       }
+    } catch (Maybe.NothingException e) {
+       // No more elements
+    }
+    return result.getList();
+   }
+
+   @Override
+   public final boolean equals(Object other) {
+    if (other == null)
+        return false;
+    if (getClass() != other.getClass())
+        return false;
+    @SuppressWarnings("unchecked")
+    final ImmutableList list_other = (ImmutableList) other;
+    final Mutable<Boolean> equal = new Mutable<Boolean>(length == list_other.length);
+    ImmutableList<Boolean> equalList = zipWith(list_other, (a, b) ->  a.equals(b));
+    equalList.forEach(e -> { equal.accept(equal.get() && e);});
+    return equal.get();
    }
 
    public void forEach(Consumer<T> c) {
