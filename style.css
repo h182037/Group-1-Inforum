@@ -56,6 +56,21 @@ body{
    background-color: #88bbff;
 }
 
+.register {
+   padding: 2em;
+   margin: auto;
+   width: 50%;
+}
+
+.login {
+   padding: 2em;
+   margin: auto;
+   width: 50%;
+}
+
+
+
+
 .entry {
    display: grid;
    margin: 0;

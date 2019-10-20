@@ -32,6 +32,10 @@ the assignment.
 
 ## Handing in the assignment
 
+Before you hand in your assignment, make sure that you
+have included all dependencies in the file `pom.xml`, and
+that your program compiles and runs well.
+
 Once you are done, you submit the assignment on
 [`mitt.uib.no`](https://mitt.uib.no/) as a link to your
 repository. This means you should not commit to the
@@ -77,6 +81,20 @@ Here you write your notes about how this task was performed.
 #### Notes – task 2
 
 Here you write your notes about how this task was performed.
+
+### Task 3 – Access control
+
+Inforum has no access control on operations such as *deleting a message*,
+or *posting a new message*.
+
+ - Identify which actions need access control, and decide
+   on an access control model.
+ - Implement your access control model.
+
+#### Notes – task 3
+
+Here you write your notes about how this task was performed.
+
 
 ### Task ω – Other security holes
 

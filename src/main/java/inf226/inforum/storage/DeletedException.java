@@ -1,6 +1,6 @@
 package inf226.inforum.storage;
 
-class DeletedException extends Exception {
+public class DeletedException extends Exception {
     private static final long serialVersionUID = 7163663032597379968L;
     public DeletedException() {
         super("Object was deleted");

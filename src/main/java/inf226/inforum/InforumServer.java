@@ -17,15 +17,17 @@ import java.lang.IllegalArgumentException;
 
 import java.time.Instant;
 import inf226.inforum.storage.*;
+import inf226.inforum.storage.DeletedException;
 
 public class InforumServer extends AbstractHandler
 {
   private static final Mutable<Thread> example_thread = Mutable.init(new Thread("Serious discussion topic"));
   private final static TransientStorage<Message> message_store
      = new TransientStorage<Message>();
-  private final String view_thread_path = "/viewThread/";
+  private final String view_thread_path = "/forum/";
   private final File style = new File("style.css");
   private final File login = new File("login.html");
+  private final File register = new File("register.html");
   private final static TransientStorage<UserContext> contextStorage
     = new TransientStorage<UserContext>();
 
@@ -35,7 +37,126 @@ public class InforumServer extends AbstractHandler
                      HttpServletResponse response)
     throws IOException, ServletException
   {
+    final Map<String,Cookie> cookies = getCookies(request);
+
+
+
+    // Pages which do not require login
     
+    if (target.equals("/style.css")) {
+        serveFile(response,style,"text/css;charset=utf-8");
+        baseRequest.setHandled(true);
+        return;
+    } else if (target.equals("/login")) {
+        serveFile(response,login, "text/html;charset=utf-8");
+        baseRequest.setHandled(true);
+        return;
+    } else if (target.equals("/register")) {
+        serveFile(response,register, "text/html;charset=utf-8");
+        baseRequest.setHandled(true);
+        return;
+    }
+
+    final Maybe<Stored<UserContext>> session = getSession(cookies, request);
+
+    // Pages which require login
+
+    try {
+        Stored<UserContext> con = session.get();
+        // TODO: Set the correct flags on cookie.
+        response.addCookie(new Cookie("session",con.identity.toString()));
+        if (target.equals("/")) {
+           response.setContentType("text/html;charset=utf-8");
+           response.setStatus(HttpServletResponse.SC_OK);
+           displayFrontPage(response.getWriter(), con);
+           baseRequest.setHandled(true);
+           return;
+        } else if (target.startsWith("/forum/")) {
+           handleForumObject(target.substring(("/forum/").length()),response,request,con);
+           baseRequest.setHandled(true);
+           return;
+        }
+    } catch (Maybe.NothingException e) {
+        // User was not logged in, redirect to login.
+        response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
+        response.setHeader("Location", "/login");
+        baseRequest.setHandled(true);
+        return;
+    }
+  }
+
+  private void handleForumObject(String object,
+                                 HttpServletResponse response,
+                                 HttpServletRequest request,
+                                 Stored<UserContext> context) {
+      Maybe<Either<Stored<Forum>,Stored<Thread>>>
+             resolved = resolvePath(object, context.value);
+      try {
+         resolved.get().branch(
+               forum -> { return ; // TODO: Display forum
+                         },
+               thread -> { try {
+                             printThread(response.getWriter(), thread.value);
+                           } catch (IOException e) { }} );
+     } catch (Maybe.NothingException e) {
+         // Object resolution failed
+         response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+     }
+  }
+
+  private Maybe<Stored<UserContext>> getSession(Map<String,Cookie> cookies, HttpServletRequest request) {
+     final Maybe<Cookie> userCookie = new Maybe<Cookie>(cookies.get("session"));
+
+     try {
+         // The user is logging in
+         if (request.getMethod().equals("post") && request.getParameter("login") != null) {
+             try {
+               String username = (new Maybe<String> (request.getParameter("username"))).get();
+               String password = (new Maybe<String> (request.getParameter("password"))).get();
+               return login(username,password);
+             } catch (Maybe.NothingException e) {
+               // Not enough data suppied for login
+             }
+         } else if (request.getMethod().equals("post") && request.getParameter("register") != null) {
+              // Request for registering a new user
+               String username = (new Maybe<String> (request.getParameter("username"))).get();
+               String password = (new Maybe<String> (request.getParameter("password"))).get();
+               String password_repeat = (new Maybe<String> (request.getParameter("password_repeat"))).get();
+               // TODO: Validate username. Check that passwords are valid and match
+               return registerUser(username,password);
+         }
+
+        // Restore a previous session
+        return Maybe.just(contextStorage.renew(UUID.fromString(userCookie.get().getValue())));
+
+     } catch (Maybe.NothingException e){
+         // Not enough data to construct a proper user session.
+         return Maybe.nothing();
+     } catch (DeletedException e){
+         // Session token expired or otherwise deleted from storage
+         return Maybe.nothing();
+     } catch (IOException e) {
+         // Retrieving session from storage failed
+         return Maybe.nothing();
+     }
+  }
+
+  private Maybe<Stored<UserContext>>  login(String username, String password) {
+     // TODO
+     return Maybe.nothing();
+  }
+
+
+  private void displayFrontPage(PrintWriter out, Stored<UserContext> context) {
+     // TODO
+  }
+
+  private Maybe<Stored<UserContext>> registerUser(String username, String password) {
+     // TODO
+     return Maybe.nothing();
+  }
+
+  private static Map<String,Cookie> getCookies (HttpServletRequest request) {
     final Map<String,Cookie> cookies = new TreeMap<String,Cookie>();
     final Cookie[] carray = request.getCookies();
     if(carray != null) {
@@ -43,68 +164,7 @@ public class InforumServer extends AbstractHandler
          cookies.put(carray[i].getName(),carray[i]);
        }
     }
-
-
-    final Maybe<String> username = new Maybe<String>(request.getParameter("username"));
-
-    username.forEach( uname -> {
-           try {
-              Stored<UserContext> con = contextStorage.save(new UserContext(uname));
-              Cookie c = new Cookie("session",con.identity.toString());
-              response.addCookie(c);
-              cookies.put("session",c);
-           } catch (IOException foo) {}
-       });
-
-    final Maybe<Cookie> userCookie = new Maybe<Cookie>(cookies.get("session"));
-
-    try { // All logged in actions go inside this try.
-        final UUID contextID = UUID.fromString(userCookie.get().getValue());
-        final Stored<UserContext> context = contextStorage.lookup(contextID).head().get();
-        if (target.startsWith(view_thread_path)) {
-           Maybe<Either<Stored<Forum>,Stored<Thread>>>
-             resolved = resolvePath(target.substring(view_thread_path.length()), context.value);
-           resolved.get().branch(
-               forum -> { return ; // TODO: Display forum
-                         },
-               thread -> { try {
-                             printThread(response.getWriter(), thread.value);
-                           } catch (IOException e) { }} );
-        }
-    } catch (Maybe.NothingException e) {
-        // User is not logged in.
-    } catch (IllegalArgumentException e) {
-        // The UUID was invalid.
-    }
-    if (target.equals("/style.css")) {
-        serveFile(response,style,"text/css;charset=utf-8");
-        baseRequest.setHandled(true);
-    } else if (target.equals("/login")) {
-        serveFile(response,login, "text/html;charset=utf-8");
-        baseRequest.setHandled(true);
-    } else if (target.equals("/") || target.equals("/post")) {
-        response.setContentType("text/html;charset=utf-8");
-        response.setStatus(HttpServletResponse.SC_OK);
-        baseRequest.setHandled(true);
-        response.getWriter().println("<!DOCTYPE html>");
-        response.getWriter().println("<html lang=\"en-GB\">");
-        response.getWriter().println("<head>");
-        response.getWriter().println("<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0, user-scalable=yes\">");
-        response.getWriter().println("<style type=\"text/css\">code{white-space: pre;}</style>");
-        response.getWriter().println("<link rel=\"stylesheet\" href=\"/style.css\">");
-        response.getWriter().println("</head>");
-        response.getWriter().println("<body>");
-        response.getWriter().println("<h1>Inforum</h1>");
-        
-        printThread(response.getWriter(), example_thread.get());
-        response.getWriter().println("<form class=\"login\" action=\"/post\" method=\"post\">");
-        response.getWriter().println("<div class=\"messagebox\">Message: <input type=\"text\" name=\"message\"></div>");
-        response.getWriter().println("<div class=\"sendbutton\"><input type=\"submit\" name=\"send\" value=\"Send\"></div>");
-        response.getWriter().println("</form>");
-
-        response.getWriter().println("</body>");
-        response.getWriter().println("</html>");
-    }
+    return cookies;
   }
 
   private Maybe<Either<Stored<Forum>,Stored<Thread>>>
@@ -183,7 +243,7 @@ public class InforumServer extends AbstractHandler
       response.setContentType(contentType);
       try {
         final InputStream is = new FileInputStream(file);
-        // Better if we can upgrade to JDK 1.9: is.transferTo(response.getOutputStream());
+        // Shorter, if we can upgrade to JDK 1.9: is.transferTo(response.getOutputStream());
         final OutputStream os = response.getOutputStream();
         final byte[] buffer = new byte[1024];
         for(int len = is.read(buffer);
@@ -194,7 +254,7 @@ public class InforumServer extends AbstractHandler
         is.close();
         response.setStatus(HttpServletResponse.SC_OK);
       } catch (IOException e) {
-        response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        response.setStatus(HttpServletResponse.SC_NOT_FOUND);
       }
   }
 
