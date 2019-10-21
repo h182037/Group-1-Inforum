@@ -45,11 +45,11 @@ public class UserStorage implements Storage<User,String,SQLException> {
      final Stored<User> current = renew(user.identity);
      final Stored<User> updated = current.newVersion(new_user);
      if(current.version.equals(user.version)) {
-        String sql =  "REPLACE INTO User VALUES('" + updated.identity + "','"
+        String sql =  "UPDATE User SET (version,name,imageURL,joined) =('" 
                                                      + updated.version  + "','"
                                                      + new_user.name  + "','"
                                                      + new_user.imageURL + "','"
-                                                     + new_user.joined.toString() + "')";
+                                                     + new_user.joined.toString() + "') WHERE id='"+ updated.identity + "'";
         connection.createStatement().executeUpdate(sql);
      } else {
         throw new UpdatedException(current);

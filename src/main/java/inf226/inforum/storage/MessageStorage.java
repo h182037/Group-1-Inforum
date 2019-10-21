@@ -44,11 +44,11 @@ public class MessageStorage implements Storage<Message,String,SQLException> {
      final Stored<Message> current = renew(message.identity);
      final Stored<Message> updated = current.newVersion(new_message);
      if(current.version.equals(message.version)) {
-        String sql =  "REPLACE INTO Message VALUES('" + updated.identity + "','"
+        String sql =  "UPDATE Message SET (version, sender, message, date) = ('"
                                                      + updated.version  + "','"
                                                      + new_message.sender  + "','"
                                                      + new_message.message + "','"
-                                                     + new_message.date.toString() + "')";
+                                                     + new_message.date.toString() + "') WHERE id='" + updated.identity + "'";
         connection.createStatement().executeUpdate(sql);
      } else {
         throw new UpdatedException(current);

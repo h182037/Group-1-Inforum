@@ -34,9 +34,9 @@ public class UserContextStorage implements Storage<UserContext,String,SQLExcepti
 
    public synchronized void initialise() throws SQLException {
        connection.createStatement()
-                 .executeUpdate("CREATE TABLE IF NOT EXISTS UserContext (id TEXT PRIMARY KEY, version TEXT, user TEXT, FOREIGN KEY(user) REFERENCES User(id))");
+                 .executeUpdate("CREATE TABLE IF NOT EXISTS UserContext (id TEXT PRIMARY KEY, version TEXT, user TEXT, FOREIGN KEY(user) REFERENCES User(id) ON DELETE CASCADE)");
        connection.createStatement()
-                 .executeUpdate("CREATE TABLE IF NOT EXISTS UserContextForum (context TEXT, forum TEXT, ordinal INTEGER, PRIMARY KEY(context, forum), FOREIGN KEY(forum) REFERENCES Forum(id), FOREIGN KEY(context) REFERENCES UserContext(id))");
+                 .executeUpdate("CREATE TABLE IF NOT EXISTS UserContextForum (context TEXT, forum TEXT, ordinal INTEGER, PRIMARY KEY(context, forum), FOREIGN KEY(forum) REFERENCES Forum(id) ON DELETE CASCADE, FOREIGN KEY(context) REFERENCES UserContext(id) ON DELETE CASCADE)");
    }
 
    @Override
@@ -93,9 +93,9 @@ public class UserContextStorage implements Storage<UserContext,String,SQLExcepti
      final Stored<UserContext> current = renew(context.identity);
      final Stored<UserContext> updated = current.newVersion(new_context);
      if(current.version.equals(context.version)) {
-        String sql =  "REPLACE INTO UserContext VALUES('" + updated.identity + "','"
+        String sql =  "UPDATE UserContext SET (version,user) = ('"
                                                      + updated.version  + "','"
-                                                     + new_context.user.identity + "')";
+                                                     + new_context.user.identity + "') WHERE id='" + updated.identity + "'";
         connection.createStatement().executeUpdate(sql);
         connection.createStatement().executeUpdate("DELETE FROM UserContextForum WHERE context='" + context.identity + "'");
         

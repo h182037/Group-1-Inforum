@@ -98,7 +98,15 @@ Here you write your notes about how this task was performed.
 
 Here you write your notes about how this task was performed.
 
-### Task 3 – Access control
+
+### Task 3 – Cross-site request forgery
+
+#### Notes – task 3
+
+Here you write your notes about how this task was performed.
+
+
+### Task 4 – Access control
 
 Inforum has no access control on operations such as *deleting a message*,
 or *posting a new message*.
@@ -107,7 +115,7 @@ or *posting a new message*.
    on an access control model.
  - Implement your access control model.
 
-#### Notes – task 3
+#### Notes – task 4
 
 Here you write your notes about how this task was performed.
 

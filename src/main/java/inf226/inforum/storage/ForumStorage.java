@@ -32,9 +32,9 @@ public class ForumStorage implements Storage<Forum,String,SQLException> {
        connection.createStatement()
                  .executeUpdate("CREATE TABLE IF NOT EXISTS Forum (id TEXT PRIMARY KEY, version TEXT, handle TEXT, name TEXT, UNIQUE (handle))");
        connection.createStatement()
-                 .executeUpdate("CREATE TABLE IF NOT EXISTS ForumThread (forum TEXT, thread TEXT, ordinal INTEGER, PRIMARY KEY(forum, thread), FOREIGN KEY(thread) REFERENCES Thread(id), FOREIGN KEY(forum) REFERENCES Forum(id))");
+                 .executeUpdate("CREATE TABLE IF NOT EXISTS ForumThread (forum TEXT, thread TEXT, ordinal INTEGER, PRIMARY KEY(forum, thread), FOREIGN KEY(thread) REFERENCES Thread(id) ON DELETE CASCADE, FOREIGN KEY(forum) REFERENCES Forum(id) ON DELETE CASCADE)");
        connection.createStatement()
-                 .executeUpdate("CREATE TABLE IF NOT EXISTS SubForum (forum TEXT, subforum TEXT, ordinal INTEGER, PRIMARY KEY(forum, subforum), FOREIGN KEY(subforum) REFERENCES Forum(id), FOREIGN KEY(forum) REFERENCES Forum(id))");
+                 .executeUpdate("CREATE TABLE IF NOT EXISTS SubForum (forum TEXT, subforum TEXT, ordinal INTEGER, PRIMARY KEY(forum, subforum), FOREIGN KEY(subforum) REFERENCES Forum(id) ON DELETE CASCADE, FOREIGN KEY(forum) REFERENCES Forum(id) ON DELETE CASCADE)");
    }
 
    @Override
@@ -117,10 +117,10 @@ public class ForumStorage implements Storage<Forum,String,SQLException> {
      final Stored<Forum> current = renew(forum.identity);
      final Stored<Forum> updated = current.newVersion(new_forum);
      if(current.version.equals(forum.version)) {
-        String sql =  "REPLACE INTO Forum VALUES('" + updated.identity + "','"
-                                                     + updated.version  + "','"
-                                                     + new_forum.handle + "','"
-                                                     + new_forum.name + "')";
+        String sql =  "UPDATE Forum SET (version,handle,name) = ('" 
+                                              + updated.version  + "','"
+                                              + new_forum.handle + "','"
+                                              + new_forum.name + "') WHERE id='" + updated.identity + "'";
         connection.createStatement().executeUpdate(sql);
         connection.createStatement().executeUpdate("DELETE FROM ForumThread WHERE forum='" + forum.identity + "'");
         

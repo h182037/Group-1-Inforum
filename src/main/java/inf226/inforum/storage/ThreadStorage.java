@@ -32,7 +32,7 @@ public class ThreadStorage implements Storage<Thread,String,SQLException> {
        connection.createStatement()
                  .executeUpdate("CREATE TABLE IF NOT EXISTS Thread (id TEXT PRIMARY KEY, version TEXT, topic TEXT)");
        connection.createStatement()
-                 .executeUpdate("CREATE TABLE IF NOT EXISTS ThreadMessage (thread TEXT, message TEXT, ordinal INTEGER, PRIMARY KEY(thread, message), FOREIGN KEY(message) REFERENCES Message(id), FOREIGN KEY(thread) REFERENCES Thread(id))");
+                 .executeUpdate("CREATE TABLE IF NOT EXISTS ThreadMessage (thread TEXT, message TEXT, ordinal INTEGER, PRIMARY KEY(thread, message), FOREIGN KEY(message) REFERENCES Message(id) ON DELETE CASCADE, FOREIGN KEY(thread) REFERENCES Thread(id) ON DELETE CASCADE)");
    }
 
    @Override
@@ -89,9 +89,9 @@ public class ThreadStorage implements Storage<Thread,String,SQLException> {
      final Stored<Thread> current = renew(thread.identity);
      final Stored<Thread> updated = current.newVersion(new_thread);
      if(current.version.equals(thread.version)) {
-        String sql =  "REPLACE INTO Thread VALUES('" + updated.identity + "','"
+        String sql =  "UPDATE Thread SET (version,topic)=('"
                                                      + updated.version  + "','"
-                                                     + new_thread.topic + "')";
+                                                     + new_thread.topic + "') WHERE id='" + updated.identity + "'";
         connection.createStatement().executeUpdate(sql);
         connection.createStatement().executeUpdate("DELETE FROM ThreadMessage WHERE thread='" + thread.identity + "'");
         

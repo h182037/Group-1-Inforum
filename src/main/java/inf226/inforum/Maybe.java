@@ -58,6 +58,12 @@ public class Maybe<T> {
       else
          return f.apply(value);
    }
+   public T defaultValue(T e) {
+      if (value == null)
+         return e;
+      else
+         return value;
+   }
 
    public Maybe<T> supremum(Maybe<T> other) {
      if (value == null)
