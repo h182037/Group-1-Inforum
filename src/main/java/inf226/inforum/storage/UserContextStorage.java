@@ -1,24 +1,18 @@
 package inf226.inforum.storage;
 
-import inf226.inforum.Util;
-import inf226.inforum.Mutable;
-import inf226.inforum.Maybe;
-import inf226.inforum.Forum;
-import inf226.inforum.UserContext;
-import inf226.inforum.User;
-import inf226.inforum.ImmutableList;
-import inf226.inforum.storage.*;
-
-import java.io.IOException;
-
-import java.sql.DriverManager;
-import java.sql.SQLException;
 import java.sql.Connection;
-import java.sql.Statement;
 import java.sql.ResultSet;
-
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.UUID;
-import java.time.Instant;
+
+import inf226.inforum.Forum;
+import inf226.inforum.ImmutableList;
+import inf226.inforum.Maybe;
+import inf226.inforum.Mutable;
+import inf226.inforum.User;
+import inf226.inforum.UserContext;
+import inf226.inforum.Util;
 
 /**
  * TODO: Secure the following for SQL injection vulnerabilities.
@@ -40,7 +34,7 @@ public class UserContextStorage implements Storage<UserContext,String,SQLExcepti
 
    public synchronized void initialise() throws SQLException {
        connection.createStatement()
-                 .executeUpdate("CREATE TABLE IF NOT EXISTS UserContext (id TEXT PRIMARY KEY, version TEXT, user TEXT, FOREIGN KEY(user) User(id))");
+                 .executeUpdate("CREATE TABLE IF NOT EXISTS UserContext (id TEXT PRIMARY KEY, version TEXT, user TEXT, FOREIGN KEY(user) REFERENCES User(id))");
        connection.createStatement()
                  .executeUpdate("CREATE TABLE IF NOT EXISTS UserContextForum (context TEXT, forum TEXT, ordinal INTEGER, PRIMARY KEY(context, forum), FOREIGN KEY(forum) REFERENCES Forum(id), FOREIGN KEY(context) REFERENCES UserContext(id))");
    }
@@ -137,5 +131,23 @@ public class UserContextStorage implements Storage<UserContext,String,SQLExcepti
    @Override
    public synchronized ImmutableList< Stored<UserContext> > lookup(String query) throws SQLException {
      return null;
+   }
+
+   public synchronized Maybe<Stored<UserContext>> getUserContext(Stored<User> user, String password) {
+      try {
+      if (user.value.checkPassword(password)) {
+         final String contextsql = "SELECT id FROM UserContext WHERE user = '" + user.identity + "'";
+         final Statement contextStatement = connection.createStatement();
+         final ResultSet contextResult = contextStatement.executeQuery(contextsql);
+         if(contextResult.next()) {
+            final UUID id = UUID.fromString(contextResult.getString("id"));
+            return Maybe.just(renew(id));
+            
+         }
+      }
+      } catch (Exception e) {
+         // Intensionally left blank to avoid info leakage from login.
+      }
+      return Maybe.nothing();
    }
 }

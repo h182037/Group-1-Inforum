@@ -20,7 +20,7 @@ public final class Pair<A,B> {
     if (getClass() != other.getClass())
         return false;
     @SuppressWarnings("unchecked")
-    final Pair pair_other = (Pair) other;
+    final Pair<Object,Object> pair_other = (Pair<Object,Object>) other;
     return this.first.equals(pair_other.first)
         && this.second.equals(pair_other.second);
 

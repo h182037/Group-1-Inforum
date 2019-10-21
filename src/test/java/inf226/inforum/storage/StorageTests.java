@@ -55,7 +55,9 @@ public class StorageTests{
             fail(exception);
         }
     }
-    private<U,Q,E extends Exception> void testUpdate(Storage<U,Q,E> storage, U value0, U value1) {
+
+    @SuppressWarnings("unchecked")
+	private<U,Q,E extends Exception> void testUpdate(Storage<U,Q,E> storage, U value0, U value1) {
         assertFalse(value0.equals(value1));
         try {
             Stored<U> stored = storage.save(value0);
@@ -202,5 +204,62 @@ public class StorageTests{
             fail(e);
         }
     }
+
+
+    @Test
+    void testUserStorageSave() {
+        try(Connection connection = DriverManager.getConnection(dburl)){
+            UserStorage userStore = new UserStorage(connection);
+            userStore.initialise();
+
+            User user = new User("Alice","image",Instant.now());
+            testSave(userStore,user);
+        } catch (SQLException e) {
+            fail(e);
+        }
+    }
+
+    @Test
+    void testUserContextStorageRenew() {
+        try (Connection connection = DriverManager.getConnection(dburl)){
+            
+            MessageStorage messageStore = new MessageStorage(connection);
+            ThreadStorage threadStore = new ThreadStorage(messageStore, connection);
+            ForumStorage forumStore = new ForumStorage(threadStore, connection);
+            UserStorage userStore = new UserStorage(connection);
+            UserContextStorage contextStore = new UserContextStorage(forumStore,userStore,connection);
+
+            messageStore.initialise();
+            threadStore.initialise();
+            forumStore.initialise();
+            userStore.initialise();
+            contextStore.initialise();
+
+            Stored<User> user0 = userStore.save(new User("alice","image",Instant.now()));
+
+            Message message0 = new Message("Alice","Hello world!",Instant.now());
+            Message message1 = new Message("Bob","Hello Alice! What’s up`",Instant.now());
+            Message message2 = new Message("Alice","Not much, Bob. Not much…",Instant.now());
+
+            ImmutableList.Builder<Stored<Message>> msgList = ImmutableList.builder();
+            msgList.accept(messageStore.save(message0));
+            msgList.accept(messageStore.save(message1));
+            Thread thread0 = new Thread("An important topic!",msgList.getList());
+            msgList.accept(messageStore.save(message2));
+            
+            ImmutableList.Builder<Stored<Thread>> threads = ImmutableList.builder();
+            threads.accept(threadStore.save(new Thread("An important topic!",msgList.getList())));
+            ImmutableList.Builder<Stored<Forum>> forums = ImmutableList.builder();
+            UserContext context0 = new UserContext(user0,forums.getList());
+            forums.accept(forumStore.save((new Forum("Testforum", "test",threads.getList(), ImmutableList.empty()))));
+            UserContext context1 = new UserContext(user0,forums.getList());
+
+            testRenew(contextStore,context0,context1);
+        } catch (Exception e) {
+            fail(e);
+        }
+    }
+
+
 }
 

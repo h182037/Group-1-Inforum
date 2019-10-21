@@ -1,7 +1,6 @@
 package inf226.inforum.storage;
 
 import inf226.inforum.*;
-import inf226.inforum.storage.*;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Collections;

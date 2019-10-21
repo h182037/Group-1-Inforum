@@ -29,6 +29,19 @@ body{
            "symbol description";
 }
 
+.forum {
+   display: grid;
+   grid-gap: 1em;
+   grid-template-columns: 50% 50%;
+   grid-template-areas:
+           "header header";
+}
+
+header {
+   grid-area: header;
+}
+
+
 
 .starter{
    grid-area: starter;
@@ -54,6 +67,7 @@ body{
    border-top-left-radius: 1em;
    border-top-right-radius: 1em;
    background-color: #88bbff;
+   color: #040404;
 }
 
 .register {
@@ -93,7 +107,9 @@ body{
    padding: 0.1em 0.1em 1em 0.1em;
 }
 
-
+.blob {
+   margin: 2em 0em 2em 0em;
+}
 
 .author:before {
     content: "—";
@@ -202,6 +218,13 @@ figure, img {
 .controls {
    grid-area: footer;
    float: right;
+}
+
+.action {
+   border: 0.1em solid #88bbff;
+   margin: auto;
+   padding: 0.3em;
+   font-size: 1em;
 }
 
 input[type=submit] {

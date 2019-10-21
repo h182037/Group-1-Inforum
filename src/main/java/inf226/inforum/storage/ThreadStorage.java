@@ -1,23 +1,17 @@
 package inf226.inforum.storage;
 
-import inf226.inforum.Util;
-import inf226.inforum.Mutable;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.UUID;
+
+import inf226.inforum.ImmutableList;
 import inf226.inforum.Maybe;
 import inf226.inforum.Message;
+import inf226.inforum.Mutable;
 import inf226.inforum.Thread;
-import inf226.inforum.ImmutableList;
-import inf226.inforum.storage.*;
-
-import java.io.IOException;
-
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.Connection;
-import java.sql.Statement;
-import java.sql.ResultSet;
-
-import java.util.UUID;
-import java.time.Instant;
+import inf226.inforum.Util;
 
 /**
  * TODO: Secure the following for SQL injection vulnerabilities.

@@ -52,7 +52,7 @@ public final class ImmutableList<T> {
       }
    }
 
-   public ImmutableList add(T element) {
+   public ImmutableList<T> add(T element) {
       return cons(element, this);
    }
 
@@ -60,7 +60,7 @@ public final class ImmutableList<T> {
     ImmutableList<U> result = empty();
     try {
        for(ImmutableList<T> l = this.reverse(); ; l = l.tail().get()) {
-          result = result.cons(f.apply(l.head().get()), result);
+          result = cons(f.apply(l.head().get()), result);
        }
     } catch (Maybe.NothingException e) {
        // No more elements
@@ -91,7 +91,7 @@ public final class ImmutableList<T> {
     if (getClass() != other.getClass())
         return false;
     @SuppressWarnings("unchecked")
-    final ImmutableList list_other = (ImmutableList) other;
+    final ImmutableList<Object> list_other = (ImmutableList<Object>) other;
     final Mutable<Boolean> equal = new Mutable<Boolean>(length == list_other.length);
     ImmutableList<Boolean> equalList = zipWith(list_other, (a, b) ->  a.equals(b));
     equalList.forEach(e -> { equal.accept(equal.get() && e);});
@@ -128,7 +128,7 @@ public final class ImmutableList<T> {
     ImmutableList<T> result = empty();
     try {
        for(ListItem<T> e = this.items.get(); ; e = e.tail.items.get()) {
-          result = result.cons(e.head, result);
+          result = cons(e.head, result);
        }
     } catch (Maybe.NothingException e) {
        // No more elements

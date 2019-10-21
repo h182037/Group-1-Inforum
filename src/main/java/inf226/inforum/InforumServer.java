@@ -15,6 +15,11 @@ import java.util.Map;
 import java.util.UUID;
 import java.lang.IllegalArgumentException;
 
+
+import java.sql.DriverManager;
+import java.sql.Connection;
+import java.sql.SQLException;
+
 import java.time.Instant;
 import inf226.inforum.storage.*;
 import inf226.inforum.storage.DeletedException;
@@ -28,8 +33,15 @@ public class InforumServer extends AbstractHandler
   private final File style = new File("style.css");
   private final File login = new File("login.html");
   private final File register = new File("register.html");
-  private final static TransientStorage<UserContext> contextStorage
-    = new TransientStorage<UserContext>();
+
+  private static final String dburl = "jdbc:sqlite:production.db";
+
+  private static MessageStorage messageStore;
+  private static UserStorage userStore;
+  private static ThreadStorage threadStore;
+  private static ForumStorage forumStore;
+  private static UserContextStorage contextStore;
+
 
   public void handle(String target,
                      Request baseRequest,
@@ -57,15 +69,32 @@ public class InforumServer extends AbstractHandler
         return;
     }
 
+    System.err.println("Creating session.");
     final Maybe<Stored<UserContext>> session = getSession(cookies, request);
 
     // Pages which require login
 
     try {
         Stored<UserContext> con = session.get();
+        System.err.println("Logged in as user: " + con.value.user.value.name);
         // TODO: Set the correct flags on cookie.
         response.addCookie(new Cookie("session",con.identity.toString()));
+
+        // Handle actions
+        if (request.getMethod().equals("POST")) {
+           if (request.getParameter("newforum") != null) {
+               System.err.println("Crating a new forum.");
+               Maybe<Stored<Forum>> forum = createForum((new Maybe<String> (request.getParameter("name"))).get(), con);
+               response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
+               response.setHeader("Location", "/forum/" + forum.get().value.handle);
+               baseRequest.setHandled(true);
+               return ;
+           }
+        }
+
+        // Display pages
         if (target.equals("/")) {
+           System.err.println("Displaying main page");
            response.setContentType("text/html;charset=utf-8");
            response.setStatus(HttpServletResponse.SC_OK);
            displayFrontPage(response.getWriter(), con);
@@ -75,9 +104,16 @@ public class InforumServer extends AbstractHandler
            handleForumObject(target.substring(("/forum/").length()),response,request,con);
            baseRequest.setHandled(true);
            return;
+        } else if (target.equals("/newforum")) {
+           response.setContentType("text/html;charset=utf-8");
+           response.setStatus(HttpServletResponse.SC_OK);
+           baseRequest.setHandled(true);
+           displayNewforumForm(response.getWriter(), con);
+           return;
         }
     } catch (Maybe.NothingException e) {
         // User was not logged in, redirect to login.
+        System.err.println("User was not logged in, redirect to login.");
         response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
         response.setHeader("Location", "/login");
         baseRequest.setHandled(true);
@@ -105,54 +141,142 @@ public class InforumServer extends AbstractHandler
   }
 
   private Maybe<Stored<UserContext>> getSession(Map<String,Cookie> cookies, HttpServletRequest request) {
-     final Maybe<Cookie> userCookie = new Maybe<Cookie>(cookies.get("session"));
+     final Maybe<Cookie> sessionCookie = new Maybe<Cookie>(cookies.get("session"));
 
      try {
          // The user is logging in
-         if (request.getMethod().equals("post") && request.getParameter("login") != null) {
+         if (request.getMethod().equals("POST") && request.getParameter("login") != null) {
              try {
                String username = (new Maybe<String> (request.getParameter("username"))).get();
                String password = (new Maybe<String> (request.getParameter("password"))).get();
                return login(username,password);
              } catch (Maybe.NothingException e) {
                // Not enough data suppied for login
+               System.err.println("Broken usage of login");
              }
-         } else if (request.getMethod().equals("post") && request.getParameter("register") != null) {
+         } else if (request.getMethod().equals("POST") && request.getParameter("register") != null) {
+             try {
               // Request for registering a new user
                String username = (new Maybe<String> (request.getParameter("username"))).get();
                String password = (new Maybe<String> (request.getParameter("password"))).get();
                String password_repeat = (new Maybe<String> (request.getParameter("password_repeat"))).get();
                // TODO: Validate username. Check that passwords are valid and match
                return registerUser(username,password);
+             } catch (Maybe.NothingException e) {
+               System.err.println("Broken usage of register");
+             }
          }
 
         // Restore a previous session
-        return Maybe.just(contextStorage.renew(UUID.fromString(userCookie.get().getValue())));
+        return restore(UUID.fromString(sessionCookie.get().getValue()));
 
      } catch (Maybe.NothingException e){
          // Not enough data to construct a proper user session.
          return Maybe.nothing();
-     } catch (DeletedException e){
-         // Session token expired or otherwise deleted from storage
-         return Maybe.nothing();
-     } catch (IOException e) {
-         // Retrieving session from storage failed
+     } catch (IllegalArgumentException e) {
+         // UUID syntax error
          return Maybe.nothing();
      }
   }
 
-  private Maybe<Stored<UserContext>>  login(String username, String password) {
-     // TODO
-     return Maybe.nothing();
+  private Maybe<Stored<UserContext>> restore(UUID id) {
+     try {
+         return Maybe.just(contextStore.renew(id));
+     } catch (DeletedException e){
+         // Session token expired or otherwise deleted from storage
+         System.err.println("Session token expried:" + id);
+     } catch (SQLException e) {
+         // Retrieving session from storage failed
+         System.err.println(e);
+     } 
+    return Maybe.nothing();
   }
 
+  private Maybe<Stored<UserContext>> login(String username, String password) {
+     return userStore
+         .getUser(username)
+         .bind( user -> contextStore.getUserContext(user, password) );
+  }
+
+  private void printForumBlob(PrintWriter out, String prefix, Stored<Forum> forum) {
+      out.println("<div class=\"blob\">\n"
+                + "  <a href=\"" + prefix + "/" + forum.value.handle + "\"><h3 class=\"topic\">" + forum.value.name + "</h3></a>\n"
+                + "</div>");
+  }
+
+  private void printStandardHead(PrintWriter out) {
+        out.println("<!DOCTYPE html>");
+        out.println("<html lang=\"en-GB\">");
+        out.println("<head>");
+        out.println("<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0, user-scalable=yes\">");
+        out.println("<style type=\"text/css\">code{white-space: pre;}</style>");
+        out.println("<link rel=\"stylesheet\" href=\"/style.css\">");
+  }
 
   private void displayFrontPage(PrintWriter out, Stored<UserContext> context) {
+        printStandardHead(out);
+        out.println("<title>Inforum – " + context.value.user.value.name + "</title>");
+        out.println("</head>");
+        out.println("<body>");
+        out.println("<section class=\"forum\">");
+        out.println("<header>");
+        out.println("<h1 class=\"topic\">Inforum</h1>");
+        out.println("<div>"
+                  + "<a class=\"action\" href=\"/newforum\">New forum</a>"
+                  + "<a class=\"action\" href=\"/logout\">Logout</a>"
+                  + "</div>");
+        out.println("</header>");
+        context.value.forums.forEach(
+          forum -> {
+             printForumBlob(out, "/forum" , forum);
+          }
+        );
+        out.println("</section>");
+        out.println("</body>");
+        out.println("</html>");
      // TODO
+  }
+  private void displayNewforumForm(PrintWriter out, Stored<UserContext> context) {
+        printStandardHead(out);
+        out.println("<title>Inforum – create a new forum</title>");
+        out.println("</head>");
+        out.println("<body>");
+        out.println("<section class=\"form\">");
+        out.println("<header>");
+        out.println("<h1 class=\"topic\">New forum</h1>");
+        out.println("</header>");
+        out.println("<form class=\"login\" action=\"/\" method=\"POST\">"
+                  + "<div class=\"name\"><input type=\"text\" name=\"name\" placeholder=\"Forum name\"></div>"
+                  + "<div class=\"submit\"><input type=\"submit\" name=\"newforum\" value=\"Create forum\"></div>"
+                  + "</forum>");
+        out.println("</section>");
+        out.println("</body>");
+        out.println("</html>");
   }
 
   private Maybe<Stored<UserContext>> registerUser(String username, String password) {
-     // TODO
+     try {
+        Stored<User> user = userStore.save(new User(username,"/img/user.svg",Instant.now()));
+        return Maybe.just(contextStore.save(new UserContext(user)));
+     } catch (SQLException e) {
+         // Mostlikely the username is not unique
+         System.err.println(e);
+     }
+     return Maybe.nothing();
+  }
+
+  private Maybe<Stored<Forum>> createForum(String name, Stored<UserContext> context) {
+     try {
+         String handle = name.toLowerCase();
+         Stored<Forum> forum = forumStore.save(new Forum(handle, name));
+         Util.updateSingle(context, contextStore,
+            con -> con.value.addForum(forum));
+         return Maybe.just(forum);
+     } catch (SQLException e) {
+
+     } catch (DeletedException e) {
+
+     }
      return Maybe.nothing();
   }
 
@@ -272,10 +396,25 @@ public class InforumServer extends AbstractHandler
         new Thread("A serious discussion!",
           ImmutableList.cons(testMessage2,ImmutableList.cons(testMessage,ImmutableList.empty()))));
 
-    Server server = new Server(8080);
-    server.setHandler(new InforumServer());
-
-    server.start();
-    server.join();
+    try(Connection connection = DriverManager.getConnection(dburl)){
+       messageStore = new MessageStorage(connection);
+       messageStore.initialise();
+       userStore = new UserStorage(connection);
+       userStore.initialise();
+       threadStore = new ThreadStorage(messageStore, connection);
+       threadStore.initialise();
+       forumStore = new ForumStorage(threadStore, connection);
+       forumStore.initialise();
+       contextStore = new UserContextStorage(forumStore, userStore, connection);
+       contextStore.initialise();
+   
+       Server server = new Server(8080);
+       server.setHandler(new InforumServer());
+   
+       server.start();
+       server.join();
+    } catch (SQLException e) {
+       System.err.println("Inforum failed: " + e);
+    }
   }
 }

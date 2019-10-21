@@ -1,6 +1,7 @@
 package inf226.inforum;
 
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 public class Maybe<T> {
    private final T value;
@@ -31,7 +32,7 @@ public class Maybe<T> {
     if (getClass() != other.getClass())
         return false;
     @SuppressWarnings("unchecked")
-    final Maybe maybe_other = (Maybe) other;
+    final Maybe<Object> maybe_other = (Maybe<Object>) other;
     if(maybe_other.value == null && value == null)
        return true;
     if(value == null)
@@ -44,6 +45,18 @@ public class Maybe<T> {
          return ;
       else
          c.accept(value);
+   }
+   public<U> Maybe<U> map(Function<T,U> f) {
+      if (value == null)
+         return nothing();
+      else
+         return just(f.apply(value));
+   }
+   public<U> Maybe<U> bind(Function<T,Maybe<U>> f) {
+      if (value == null)
+         return nothing();
+      else
+         return f.apply(value);
    }
 
    public Maybe<T> supremum(Maybe<T> other) {

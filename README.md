@@ -64,6 +64,22 @@ The tasks below has been separated out, for you
 
 ### Task 0 – Authentication
 
+The original authentication mechanisms of Inforum was so insecure it had to be removed
+immediately and all traces of the old passwords have been purged
+from the database. Therefore, the code in `inf226.inforum.User`, which is
+supposed to check the password, always returns `true`.
+
+Update the code to use a secure password authentication method in `User.checkPassword` – one
+of the secure methods we have discussed
+in lecture.
+
+Any data you need to store for the password check can be kept in the `User` class, with
+appropriate updates to `storage.UserStorage`. Remember that the `User` class is *immutable*.
+Any new field must be immutable and `final`
+as well.
+
+Additionally, while the session cookie is an unguessable UUID, you must set the
+correct protection flags on the session cookie.
 
 #### Notes – task 0
 

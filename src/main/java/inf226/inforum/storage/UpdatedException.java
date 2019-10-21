@@ -1,7 +1,7 @@
 package inf226.inforum.storage;
 import inf226.inforum.storage.Stored;
 
-class UpdatedException extends Exception {
+public class UpdatedException extends Exception {
     private static final long serialVersionUID = 8163663032597379968L;
     public final Stored newObject;
     public UpdatedException(Stored newObject) {

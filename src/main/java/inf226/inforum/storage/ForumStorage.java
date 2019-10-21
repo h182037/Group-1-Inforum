@@ -1,23 +1,17 @@
 package inf226.inforum.storage;
 
-import inf226.inforum.Util;
-import inf226.inforum.Mutable;
-import inf226.inforum.Maybe;
-import inf226.inforum.Thread;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.UUID;
+
 import inf226.inforum.Forum;
 import inf226.inforum.ImmutableList;
-import inf226.inforum.storage.*;
-
-import java.io.IOException;
-
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.Connection;
-import java.sql.Statement;
-import java.sql.ResultSet;
-
-import java.util.UUID;
-import java.time.Instant;
+import inf226.inforum.Maybe;
+import inf226.inforum.Mutable;
+import inf226.inforum.Thread;
+import inf226.inforum.Util;
 
 /**
  * TODO: Secure the following for SQL injection vulnerabilities.
@@ -47,30 +41,30 @@ public class ForumStorage implements Storage<Forum,String,SQLException> {
    public synchronized Stored<Forum> renew(UUID id) throws DeletedException,SQLException {
       final String forumsql = "SELECT version,handle,name FROM Forum WHERE id = '" + id.toString() + "'";
       final String threadsql = "SELECT thread,ordinal FROM ForumThread WHERE forum = '" + id.toString() + "' ORDER BY ordinal DESC";
-      final String subforumsql = "SELECT subforum,ordinal FROM ForumThread WHERE forum = '" + id.toString() + "' ORDER BY ordinal DESC";
+      final String subforumsql = "SELECT subforum,ordinal FROM SubForum WHERE forum = '" + id.toString() + "' ORDER BY ordinal DESC";
 
       final Statement forumStatement = connection.createStatement();
       final Statement threadStatement = connection.createStatement();
       final Statement subforumStatement = connection.createStatement();
 
       final ResultSet forumResult = forumStatement.executeQuery(forumsql);
-      final ResultSet threadResult = threadStatement.executeQuery(threadsql);
-      final ResultSet subforumResult = threadStatement.executeQuery(subforumsql);
 
       if(forumResult.next()) {
           final UUID version = UUID.fromString(forumResult.getString("version"));
           final String handle = forumResult.getString("handle");
           final String name = forumResult.getString("name");
+          final ResultSet threadResult = threadStatement.executeQuery(threadsql);
           // Get all the threads in this forum
           final ImmutableList.Builder<Stored<Thread>> threads = ImmutableList.builder();
           while(threadResult.next()) {
               final UUID threadId = UUID.fromString(threadResult.getString("thread"));
               threads.accept(threadStore.renew(threadId));
           }
+          final ResultSet subforumResult = threadStatement.executeQuery(subforumsql);
           // Get all the subforums in this forum
           final ImmutableList.Builder<Stored<Forum>> subforums = ImmutableList.builder();
-          while(threadResult.next()) {
-              final UUID subforumId = UUID.fromString(threadResult.getString("subforum"));
+          while(subforumResult.next()) {
+              final UUID subforumId = UUID.fromString(subforumResult.getString("subforum"));
               subforums.accept(this.renew(subforumId));
           }
           return (new Stored<Forum>(new Forum(handle,name,threads.getList(), subforums.getList()),id,version));

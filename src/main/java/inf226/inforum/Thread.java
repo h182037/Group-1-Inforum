@@ -1,6 +1,5 @@
 package inf226.inforum;
 
-import inf226.inforum.*;
 import inf226.inforum.storage.*;
 
 public class Thread {

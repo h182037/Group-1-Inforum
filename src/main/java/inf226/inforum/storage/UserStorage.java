@@ -1,19 +1,15 @@
 package inf226.inforum.storage;
 
-import inf226.inforum.User;
-import inf226.inforum.ImmutableList;
-import inf226.inforum.storage.*;
-
-import java.io.IOException;
-
-import java.sql.DriverManager;
-import java.sql.SQLException;
 import java.sql.Connection;
-import java.sql.Statement;
 import java.sql.ResultSet;
-
-import java.util.UUID;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.time.Instant;
+import java.util.UUID;
+
+import inf226.inforum.ImmutableList;
+import inf226.inforum.Maybe;
+import inf226.inforum.User;
 
 /**
  * TODO: Secure the following for SQL injection vulnerabilities.
@@ -29,7 +25,7 @@ public class UserStorage implements Storage<User,String,SQLException> {
 
    public synchronized  void initialise() throws SQLException {
        connection.createStatement()
-                 .executeUpdate("CREATE TABLE IF NOT EXISTS User (id TEXT PRIMARY KEY, version TEXT, name TEXT, user TEXT, joined TEXT)");
+                 .executeUpdate("CREATE TABLE IF NOT EXISTS User (id TEXT PRIMARY KEY, version TEXT, name TEXT, imageURL TEXT, joined TEXT, UNIQUE(name))");
    }
 
    @Override
@@ -92,5 +88,25 @@ public class UserStorage implements Storage<User,String,SQLException> {
    @Override
    public synchronized ImmutableList< Stored<User> > lookup(String query) throws SQLException {
      return null;
+   }
+
+   public synchronized Maybe<Stored<User>> getUser(String name) {
+      try {
+         final String sql = "SELECT id FROM User WHERE name = '" + name + "'";
+         final Statement statement = connection.createStatement();
+         final ResultSet rs = statement.executeQuery(sql);
+         if(rs.next()) {
+          final UUID id = UUID.fromString(rs.getString("id"));
+          return Maybe.just(renew(id));
+         }
+      } catch (SQLException e) {
+         System.out.println(e);
+         // Intensionally left blank
+      } catch (DeletedException e) {
+         System.out.println(e);
+         // Intensionally left blank
+      }
+      return Maybe.nothing();
+
    }
 }
