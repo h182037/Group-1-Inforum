@@ -49,64 +49,89 @@ your assignment to merge any new commits into your own branch.
 
 ## Improvements?
 
-Have you found a non-security related bug – maybe you have
-an idea for a new feature you want to add to the forum?
+Have you found a non-security related bug?
 Feel free to open an issue on the project GitLab page.
-The best way is to make a separate git branch for these
-changes, which do not contain your sulutions 
+The best way is to make a separate `git branch` for these
+changes, which do not contain your sulutions.
 
 (This is ofcourse completely volountary – and not a graded
 part of the assignment)
+
+If you want to add your own features to the forum - feel free
+to do so! If you want to share them, contact Håkon and we can
+incorporate them into the main repo.
 
 ## Tasks
 
 The tasks below has been separated out, for you
 
-### Task 0 – Authentication
+### Task 0 – Authentication (2 points)
 
 The original authentication mechanisms of Inforum was so insecure it had to be removed
 immediately and all traces of the old passwords have been purged
 from the database. Therefore, the code in `inf226.inforum.User`, which is
 supposed to check the password, always returns `true`.
 
-Update the code to use a secure password authentication method in `User.checkPassword` – one
+*Update the code to use a secure password authentication method in `User.checkPassword` – one
 of the secure methods we have discussed
-in lecture.
+in lecture.*
 
 Any data you need to store for the password check can be kept in the `User` class, with
 appropriate updates to `storage.UserStorage`. Remember that the `User` class is *immutable*.
 Any new field must be immutable and `final`
 as well.
 
-Additionally, while the session cookie is an unguessable UUID, you must set the
-correct protection flags on the session cookie.
+*Additionally, while the session cookie is an unguessable UUID, you must set the
+correct protection flags on the session cookie.*
+
+**Hint**: An implementation of `scrypt` is already included as a dependency in `pom.xml`.
+If you prefer to use `argon2`, make sure to include it as well.
 
 #### Notes – task 0
 
 Here you write your notes about how this task was performed.
 
-### Task 1 – SQL injection
+### Task 1 – SQL injection (2 points)
+
+The SQL code is currently wildly concatenating strings, leaving
+it wide open to injection attacks.
+
+*Use the techniques we hav studied to prevent
+SQL injection attacks on the forum.*
 
 #### Notes – task 1
 
 Here you write your notes about how this task was performed.
 
-### Task 2 – Cross-site scripting
+### Task 2 – Cross-site scripting (3 points)
 
+The user interface is generated in `InforumServer`. The current
+implementation is returning a lot of user data without properly
+escaping it for the context it is displayed (for instance HTML body).
+
+*Take measures to prevent XSS attacks on the forum.*
 
 #### Notes – task 2
 
 Here you write your notes about how this task was performed.
 
 
-### Task 3 – Cross-site request forgery
+### Task 3 – Cross-site request forgery (1 point)
+
+While the code uses UUIDs to identify most objects, some
+form actions are still susceptible to cross-site request forgery attacks
+(for instane the `newthread` and the `newforum` actions.
+
+*Implement anti-CSRF tokens on the vulnerable forms.*
+
+**Hint:** it is OK to use the session cookie as such a token.
 
 #### Notes – task 3
 
 Here you write your notes about how this task was performed.
 
 
-### Task 4 – Access control
+### Task 4 – Access control (3 points)
 
 Inforum has no access control on operations such as *deleting a message*,
 or *posting a new message*.
@@ -114,6 +139,11 @@ or *posting a new message*.
  - Identify which actions need access control, and decide
    on an access control model.
  - Implement your access control model.
+
+At *minimum*, your access control system should prevent users from editing
+and deleting each other's posts (unless you implement special moderator
+priviledges which allows deletion). Other than that, this excercise is
+open-ended – its up to you!
 
 #### Notes – task 4
 

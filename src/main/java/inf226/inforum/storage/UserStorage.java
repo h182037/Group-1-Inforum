@@ -90,6 +90,7 @@ public class UserStorage implements Storage<User,String,SQLException> {
      return null;
    }
 
+
    public synchronized Maybe<Stored<User>> getUser(String name) {
       try {
          final String sql = "SELECT id FROM User WHERE name = '" + name + "'";

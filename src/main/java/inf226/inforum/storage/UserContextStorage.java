@@ -150,4 +150,24 @@ public class UserContextStorage implements Storage<UserContext,String,SQLExcepti
       }
       return Maybe.nothing();
    }
+
+   /**
+    *  Invite another user to the forum.
+    */
+   public synchronized boolean invite(Stored<Forum> forum, Stored<User> user) {
+     try {
+      final String sql  = "SELECT id FROM UserContext WHERE user ='" + user.identity + "'";
+      ResultSet rs = connection.createStatement().executeQuery(sql);
+      if(rs.next()) {
+        final String msql = "INSERT INTO UserContextForum VALUES('" + rs.getString("id") + "','"
+                                                                    + forum.identity + "','"
+                                                                    + (-1) + "')";
+        connection.createStatement().executeUpdate(msql);
+        return true;
+        
+      }
+      System.out.println("No user in DB:" +sql);
+    } catch (SQLException e) {System.err.println(e);}
+    return false;
+   }
 }

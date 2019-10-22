@@ -22,9 +22,9 @@ public class Message {
       this.date = m.date;
    }
 
-   public String toHTML() {
-      // TODO: Prevent XSS through message body.
-      return message;
+
+   public Message setMessage(String message) {
+      return new Message(sender,message,date);
    }
 
    @Override

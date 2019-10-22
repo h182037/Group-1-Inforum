@@ -24,18 +24,26 @@ import java.time.Instant;
 import inf226.inforum.storage.*;
 import inf226.inforum.storage.DeletedException;
 
+/**
+ * The InforumServer class handles all HTTP and HTML component.
+ * Functions called display⋯ and print⋯ output HTML.
+ * Functions called handle⋯ process HTTP requests.
+ */
+
 public class InforumServer extends AbstractHandler
 {
-  private static final Mutable<Thread> example_thread = Mutable.init(new Thread("Serious discussion topic"));
-  private final static TransientStorage<Message> message_store
-     = new TransientStorage<Message>();
-  private final String view_thread_path = "/forum/";
+  // Static resources:
   private final File style = new File("style.css");
   private final File login = new File("login.html");
   private final File register = new File("register.html");
 
   private static Inforum inforum;
 
+  /**
+   * This is the entry point for HTTP requests.
+   * Some requests require login, while some can be processed
+   * without a valid session.
+   */
   public void handle(String target,
                      Request baseRequest,
                      HttpServletRequest request,
@@ -84,6 +92,13 @@ public class InforumServer extends AbstractHandler
                baseRequest.setHandled(true);
                return ;
            }
+           if (request.getParameter("edit") != null) {
+               
+               displayEditMessageForm(response.getWriter(),target,(new Maybe<String> (request.getParameter("content"))).get(), (Maybe.just(request.getParameter("message"))).get());
+               response.setStatus(HttpServletResponse.SC_OK);
+               baseRequest.setHandled(true);
+               return ;
+           }
         }
 
         // Display pages
@@ -115,6 +130,12 @@ public class InforumServer extends AbstractHandler
               return;
            } catch (Maybe.NothingException e) {
            }
+        } else if (target.equals("/logout")) {
+           response.addCookie(new Cookie("session",""));
+           response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
+           response.setHeader("Location", "/");
+           baseRequest.setHandled(true);
+           return ;
         }
     } catch (Maybe.NothingException e) {
         // User was not logged in, redirect to login.
@@ -126,6 +147,9 @@ public class InforumServer extends AbstractHandler
     }
   }
 
+  /**
+   * Display or modify threads or forums ("forum objects")
+   */
   private void handleForumObject(String object,
                                  HttpServletResponse response,
                                  HttpServletRequest request,
@@ -149,6 +173,9 @@ public class InforumServer extends AbstractHandler
      }
   }
 
+  /**
+   * Restore a session, login or register a user.
+   */
   private Maybe<Stored<UserContext>> getSession(Map<String,Cookie> cookies, HttpServletRequest request) {
      final Maybe<Cookie> sessionCookie = new Maybe<Cookie>(cookies.get("session"));
 
@@ -189,13 +216,34 @@ public class InforumServer extends AbstractHandler
   }
 
 
-
+  /**
+   * Display forums as small blobs in HTML
+   */
   private void printForumBlob(PrintWriter out, String prefix, Stored<Forum> forum) {
+      final StringBuilder topiclist = new StringBuilder();
+      try {
+          ImmutableList<Stored<Thread>> tlist = forum.value.threads;
+          Stored<Thread> thread = tlist.head().get();
+          topiclist.append("<li><a href=\"" + prefix + "/" + forum.value.handle + "/" + thread.identity +"\">" + thread.value.topic + "</a></li>\n");
+          tlist = tlist.tail().get();
+          thread = tlist.head().get();
+          topiclist.append("<li><a href=\"" + prefix + "/" + forum.value.handle + "/" + thread.identity +"\">" + thread.value.topic + "</a></li>\n");
+          tlist = tlist.tail().get();
+          thread = tlist.head().get();
+          topiclist.append("<li><a href=\"" + prefix + "/" + forum.value.handle + "/" + thread.identity +"\">" + thread.value.topic + "</a></li>\n");
+          tlist = tlist.tail().get();
+          thread = tlist.head().get();
+          topiclist.append("<li><a href=\"" + prefix + "/" + forum.value.handle + "/" + thread.identity +"\">" + thread.value.topic + "</a></li>\n");
+      } catch (Maybe.NothingException e) { }
       out.println("<div class=\"blob\">\n"
                 + "  <a href=\"" + prefix + "/" + forum.value.handle + "/\"><h3 class=\"topic\">" + forum.value.name + "</h3></a>\n"
+                + "  <div class=\"text\"><ul>" + topiclist.toString() + "</ul></div>"
                 + "</div>");
   }
 
+  /**
+   * Display threads as small blobs in HTML
+   */
   private void printThreadBlob(PrintWriter out, String prefix, Stored<Thread> thread) {
       Maybe<Stored<Message>> first = thread.value.messages.head();
       Maybe<String> blabla = first.map(message -> message.value.message);
@@ -214,6 +262,9 @@ public class InforumServer extends AbstractHandler
         out.println("<link rel=\"stylesheet\" href=\"/style.css\">");
   }
 
+  /**
+   * Render the front page as HTML
+   */
   private void displayFrontPage(PrintWriter out, Stored<UserContext> context) {
         printStandardHead(out);
         out.println("<title>Inforum – " + context.value.user.value.name + "</title>");
@@ -235,8 +286,27 @@ public class InforumServer extends AbstractHandler
         out.println("</section>");
         out.println("</body>");
         out.println("</html>");
-     // TODO
   }
+
+  private void displayEditMessageForm(PrintWriter out, String ret, String content, String message) {
+        printStandardHead(out);
+        out.println("<title>Inforum – Edit message</title>");
+        out.println("</head>");
+        out.println("<body>");
+        out.println("<section class=\"form\">");
+        out.println("<header>");
+        out.println("<h1 class=\"topic\">Edit message</h1>");
+        out.println("</header>");
+        out.println("<form class=\"login\" action=\"" + ret + "\" method=\"POST\">"
+                  + "<input type=\"hidden\" name=\"message\" value=\"" + message + "\">"
+                  + "<textarea name=\"content\" placeholder=\"Message\" cols=50 rows=10>"+ content +"</textarea>"
+                  + "<div class=\"submit\"><input type=\"submit\" name=\"editmessage\" value=\"Update\"></div>"
+                  + "</forum>");
+        out.println("</section>");
+        out.println("</body>");
+        out.println("</html>");
+  }
+
   private void displayNewforumForm(PrintWriter out, Stored<UserContext> context) {
         printStandardHead(out);
         out.println("<title>Inforum – create a new forum</title>");
@@ -276,6 +346,9 @@ public class InforumServer extends AbstractHandler
 
 
 
+  /**
+   * Load all the cookies into a map for easy retrieval.
+   */
   private static Map<String,Cookie> getCookies (HttpServletRequest request) {
     final Map<String,Cookie> cookies = new TreeMap<String,Cookie>();
     final Cookie[] carray = request.getCookies();
@@ -287,6 +360,9 @@ public class InforumServer extends AbstractHandler
     return cookies;
   }
 
+  /**
+   * Resolve a path to a forum or subforum.
+   */
   private Maybe<Either<Stored<Forum>,Stored<Thread>>>
        resolvePath(final String forum_path, final UserContext context) {
    final Maybe.Builder<Either<Stored<Forum>,Stored<Thread>>> result = Maybe.builder();
@@ -309,6 +385,9 @@ public class InforumServer extends AbstractHandler
     return result.getMaybe();
   }
 
+  /**
+   * Handle an HTTP request to a forum
+   */
   private void handleForum(PrintWriter out,
                      String path,
                      HttpServletRequest request,
@@ -327,11 +406,25 @@ public class InforumServer extends AbstractHandler
           } catch (Maybe.NothingException e) {
                System.err.println("Could not create new thread.");
           }
+       } else if (request.getMethod().equals("POST") && request.getParameter("invite") != null) {
+          try {
+               System.err.println("Inviting into forum");
+               String user = (new Maybe<String> (request.getParameter("user"))).get();
+               if(inforum.invite(context, user, forum)) {
+                  System.err.println("Invited!");
+               }
+               forum = inforum.refreshForum(forum).get();
+          } catch (Maybe.NothingException e) {
+               System.err.println("Could not invite.");
+          }
        }
        printForum(out,path,forum);
 
   }
 
+  /**
+   * Handle an HTTP request to a thread
+   */
   private void handleThread(PrintWriter out,
                      String path,
                      HttpServletRequest request,
@@ -345,13 +438,25 @@ public class InforumServer extends AbstractHandler
                inforum.postMessage(thread,message,context);
                thread = inforum.refreshThread(thread).get();
           } catch (Maybe.NothingException e) {
-               System.err.println("Could not create new thread.");
+               System.err.println("Could not post message");
           }
        } else if (request.getMethod().equals("POST") && request.getParameter("deletemessage") != null) {
           try {
-               System.err.println("Deleting a new message.");
+               System.err.println("Deleting a message.");
                UUID message = UUID.fromString((new Maybe<String> (request.getParameter("message"))).get());
                inforum.deleteMessage(message,context);
+               System.err.println("Message deleted.");
+               thread = inforum.refreshThread(thread).get();
+          } catch (Maybe.NothingException e) {
+               System.err.println("Could not delete message.");
+          }
+
+       } else if (request.getMethod().equals("POST") && request.getParameter("editmessage") != null) {
+          try {
+               System.err.println("Editing a new message.");
+               UUID message = UUID.fromString((new Maybe<String> (request.getParameter("message"))).get());
+               String content = (new Maybe<String> (request.getParameter("content"))).get();
+               inforum.editMessage(message,content,context);
                System.err.println("Message deleted.");
                thread = inforum.refreshThread(thread).get();
           } catch (Maybe.NothingException e) {
@@ -360,8 +465,6 @@ public class InforumServer extends AbstractHandler
 
        }
        printThread(out,path,thread,context);
-
-  
 
   }
 
@@ -374,10 +477,11 @@ public class InforumServer extends AbstractHandler
     out.println("  <header class=\"forum-head\">");
     out.println("  <h2 class=\"topic\">" + forum.value.name + "</h2>");
     out.println("  </header>");
-    out.println("<div>"
+    out.println("<form class=\"action\" name=\"invite\" action=\"/forum/" + path + "\" method=\"POST\">"
                   + "<a class=\"action\" href=\"/newthread?forum=" + path + "\">New thread</a>"
-                  + "<a class=\"action\" href=\"/logout\">Logout</a>"
-              + "</div>");
+                  + "<input style=\"margin-left: 3em;\" type=\"text\" name=\"user\" placeholder=\"Invite user\"><input type=\"submit\" name=\"invite\" value=\"Invite!\">"
+                  + "<a style=\"margin-left: 3em;\" class=\"action\" href=\"/logout\">Logout</a>"
+              + "</form>");
     out.println("  <section class=\"forum\">");
     out.println("  <header><h3>Subforums</h3></header>");
     forum.value.subforums.forEach(
@@ -423,6 +527,7 @@ public class InforumServer extends AbstractHandler
          out.println("     <div class=\"text\">" + m.message + "</div>");
          out.println("     <form class=\"controls\" action=\"/forum/" + path +"\" method=\"POST\">");
          out.println("        <input class=\"controls\" name=\"message\" type=\"hidden\" value=\""+ sm.identity +"\">");
+         out.println("        <input class=\"controls\" name=\"content\" type=\"hidden\" value=\""+ m.message +"\">");
          out.println("        <input type=\"submit\" name=\"edit\" value=\"Edit\"/>\n");
          out.println("        <input type=\"submit\" name=\"deletemessage\" value=\"Delete\"/>\n");
          out.println("     </form>");
@@ -438,6 +543,9 @@ public class InforumServer extends AbstractHandler
     out.println("</html>");
   }
 
+  /**
+   * Serve a static file from file system.
+   */
   private void serveFile(HttpServletResponse response, File file, String contentType) {
       response.setContentType(contentType);
       try {
@@ -457,22 +565,13 @@ public class InforumServer extends AbstractHandler
       }
   }
 
+  /**
+   * main function. Sets up the forum.
+   */
   public static void main(String[] args) throws Exception
   {
-    Stored<Message> testMessage 
-      = new Stored<Message>(new Message("Joe",
-                                        "<p> This a message. </p>",
-                                        Instant.now()));
-    Stored<Message> testMessage2
-      = new Stored<Message>(new Message("Bob",
-                                        "<p> This another message. </p>",
-                                        Instant.now()));
-    example_thread.accept(
-        new Thread("A serious discussion!",
-          ImmutableList.cons(testMessage2,ImmutableList.cons(testMessage,ImmutableList.empty()))));
-
     try{
-       inforum = new Inforum("test.db");
+       inforum = new Inforum("production.db");
        Server server = new Server(8080);
        server.setHandler(new InforumServer());
    
