@@ -30,6 +30,21 @@ of your final grade. The assigment is graded 0–10 points,
 where you must get a minimum of 3 points in order to pass
 the assignment.
 
+## Getting and building the project
+
+Log into [`git.app.uib.no`](https://git.app.uib.no/Hakon.Gylterud/inf226-2019-inforum) and make your
+own fork of the project there. You can then clone your repo to your
+own persion machine.
+
+To build the project you can use Maven on the command line, or configure
+your IDE to use Maven to build the project.
+
+ - `mvn compile` builds the project
+ - `mvn test` runs the tests. (There are only a few unit test – feel free to add more).
+ - `mvn exec:java` runs the web app.
+
+Once the web-app is running, you can access it on [`localhost:8080`](http://localhost:8080).
+
 ## Handing in the assignment
 
 Before you hand in your assignment, make sure that you
