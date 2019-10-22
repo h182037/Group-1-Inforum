@@ -18,13 +18,13 @@ import inf226.inforum.Util;
  * TODO: Secure the following for SQL injection vulnerabilities.
  */
 
-public class UserContextStorage implements Storage<UserContext,String,SQLException> {
+public class UserContextStorage implements Storage<UserContext,SQLException> {
    final Connection connection;
-   final Storage<Forum,String,SQLException> forumStore;
-   final Storage<User,String,SQLException> userStore;
+   final Storage<Forum,SQLException> forumStore;
+   final Storage<User,SQLException> userStore;
 
-    public UserContextStorage(Storage<Forum,String,SQLException> forumStore, 
-                              Storage<User,String,SQLException> userStore,
+    public UserContextStorage(Storage<Forum,SQLException> forumStore, 
+                              Storage<User,SQLException> userStore,
                               Connection connection) throws SQLException {
       this.forumStore = forumStore;
       this.userStore = userStore;
@@ -126,11 +126,6 @@ public class UserContextStorage implements Storage<UserContext,String,SQLExcepti
      } else {
         throw new UpdatedException(current);
      }
-   }
-
-   @Override
-   public synchronized ImmutableList< Stored<UserContext> > lookup(String query) throws SQLException {
-     return null;
    }
 
    public synchronized Maybe<Stored<UserContext>> getUserContext(Stored<User> user, String password) {

@@ -14,7 +14,7 @@ import inf226.inforum.Message;
  * TODO: Secure the following for SQL injection vulnerabilities.
  */
 
-public class MessageStorage implements Storage<Message,String,SQLException> {
+public class MessageStorage implements Storage<Message,SQLException> {
    final Connection connection;
 
     public MessageStorage(Connection connection) throws SQLException {
@@ -84,8 +84,4 @@ public class MessageStorage implements Storage<Message,String,SQLException> {
       }
    }
 
-   @Override
-   public synchronized ImmutableList< Stored<Message> > lookup(String query) throws SQLException {
-     return null;
-   }
 }

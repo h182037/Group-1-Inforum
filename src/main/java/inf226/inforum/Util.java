@@ -16,7 +16,7 @@ public class Util {
    }
 
    
-public static<A,Q, E extends Exception> Stored<A> updateSingle(Stored<A> stored, Storage<A,Q,E> storage, Function<Stored<A>,A> update) throws E, DeletedException{
+public static<A,Q, E extends Exception> Stored<A> updateSingle(Stored<A> stored, Storage<A,E> storage, Function<Stored<A>,A> update) throws E, DeletedException{
       boolean updated = true;
       while(true) {
         try {

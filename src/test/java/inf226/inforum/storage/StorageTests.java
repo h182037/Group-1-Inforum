@@ -27,7 +27,7 @@ public class StorageTests{
         assertFalse(updated.version.equals(stored.version));
         assertEquals(updated.value,"barbar");
     }
-    private<U,Q,E extends Exception> void testSave(Storage<U,Q,E> storage, U value) {
+    private<U,Q,E extends Exception> void testSave(Storage<U,E> storage, U value) {
         try {
             Stored<U> stored = storage.save(value);
             assertTrue(stored.value.equals(value));
@@ -35,7 +35,7 @@ public class StorageTests{
             fail("Could not save to storage:\n" + exception.toString());
         }
     }
-    private<U,Q,E extends Exception> void testRenew(Storage<U,Q,E> storage, U value0, U value1) {
+    private<U,Q,E extends Exception> void testRenew(Storage<U,E> storage, U value0, U value1) {
         assertFalse(value0.equals(value1));
         try {
             Stored<U> stored = storage.save(value0);
@@ -57,7 +57,7 @@ public class StorageTests{
     }
 
     @SuppressWarnings("unchecked")
-	private<U,Q,E extends Exception> void testUpdate(Storage<U,Q,E> storage, U value0, U value1) {
+	private<U,Q,E extends Exception> void testUpdate(Storage<U,E> storage, U value0, U value1) {
         assertFalse(value0.equals(value1));
         try {
             Stored<U> stored = storage.save(value0);
@@ -75,7 +75,7 @@ public class StorageTests{
             fail(exception);
         }
     }
-    private<U,Q,E extends Exception> void testDelete(Storage<U,Q,E> storage, U value0, U value1) {
+    private<U,Q,E extends Exception> void testDelete(Storage<U,E> storage, U value0, U value1) {
         assertFalse(value0.equals(value1));
         try {
             Stored<U> stored = storage.save(value0);

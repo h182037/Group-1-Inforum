@@ -17,11 +17,11 @@ import inf226.inforum.Util;
  * TODO: Secure the following for SQL injection vulnerabilities.
  */
 
-public class ForumStorage implements Storage<Forum,String,SQLException> {
+public class ForumStorage implements Storage<Forum,SQLException> {
    final Connection connection;
-   final Storage<Thread,String,SQLException> threadStore;
+   final Storage<Thread,SQLException> threadStore;
 
-    public ForumStorage(Storage<Thread,String,SQLException> threadStore, Connection connection) throws SQLException {
+    public ForumStorage(Storage<Thread,SQLException> threadStore, Connection connection) throws SQLException {
       this.threadStore = threadStore;
       
       this.connection = connection; 
@@ -165,8 +165,4 @@ public class ForumStorage implements Storage<Forum,String,SQLException> {
      }
    }
 
-   @Override
-   public synchronized ImmutableList< Stored<Forum> > lookup(String query) throws SQLException {
-     return null;
-   }
 }

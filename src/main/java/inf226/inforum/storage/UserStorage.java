@@ -15,7 +15,7 @@ import inf226.inforum.User;
  * TODO: Secure the following for SQL injection vulnerabilities.
  */
 
-public class UserStorage implements Storage<User,String,SQLException> {
+public class UserStorage implements Storage<User,SQLException> {
    final Connection connection;
 
     public UserStorage(Connection connection) throws SQLException {
@@ -84,12 +84,6 @@ public class UserStorage implements Storage<User,String,SQLException> {
           throw new DeletedException();
       }
    }
-
-   @Override
-   public synchronized ImmutableList< Stored<User> > lookup(String query) throws SQLException {
-     return null;
-   }
-
 
    public synchronized Maybe<Stored<User>> getUser(String name) {
       try {
