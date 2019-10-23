@@ -78,7 +78,7 @@ incorporate them into the main repo.
 
 ## Tasks
 
-The tasks below has been separated out, for you
+The tasks below has been separated out, and marked with their *approximate* weight.
 
 ### Task 0 – Authentication (2 points)
 
@@ -159,6 +159,8 @@ At *minimum*, your access control system should prevent users from editing
 and deleting each other's posts (unless you implement special moderator
 priviledges which allows deletion). Other than that, this excercise is
 open-ended – its up to you!
+
+Depending on how you choose to go about it, you should implement access control in either the `Inforum` class or the storage classes.
 
 #### Notes – task 4
 
