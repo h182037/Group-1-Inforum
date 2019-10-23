@@ -126,6 +126,9 @@ escaping it for the context it is displayed (for instance HTML body).
 
 *Take measures to prevent XSS attacks on the forum.*
 
+**Hint**: In addition to the books and the lecture slides, you should
+take a look at the [OWASP XSS prevention cheat sheet](https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html)
+
 #### Notes – task 2
 
 Here you write your notes about how this task was performed.
