@@ -118,7 +118,7 @@ SQL injection attacks on the forum.*
 
 Here you write your notes about how this task was performed.
 
-### Task 2 – Cross-site scripting (3 points)
+### Task 2 – Cross-site scripting (2.5 points)
 
 The user interface is generated in `InforumServer`. The current
 implementation is returning a lot of user data without properly
@@ -149,7 +149,7 @@ form actions are still susceptible to cross-site request forgery attacks
 Here you write your notes about how this task was performed.
 
 
-### Task 4 – Access control (3 points)
+### Task 4 – Access control (2.5 points)
 
 Inforum has no access control on operations such as *deleting a message*,
 or *posting a new message*.
