@@ -33,7 +33,7 @@ the assignment.
 ## Getting and building the project
 
 Log into [`git.app.uib.no`](https://git.app.uib.no/Hakon.Gylterud/inf226-2019-inforum) and make your
-own fork of the project there. You can then clone your repo to your
+own fork of the project there. *Make sure your fork is private!* You can then clone your repo to your
 own persion machine.
 
 To build the project you can use Maven on the command line, or configure
