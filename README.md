@@ -30,6 +30,14 @@ of your final grade. The assigment is graded 0–10 points,
 where you must get a minimum of 3 points in order to pass
 the assignment.
 
+## Groups
+
+As with the previous assignments, you can work in groups of 1–3 students
+on this assginment. Make sure that everyone is signed up for the group
+on [MittUiB](https://mitt.uib.no/courses/19886/groups#tab-6923).
+One good way to collaborate is that one person on the group makes a
+fork and adds the other group members to that project.
+
 ## Getting and building the project
 
 Log into [`git.app.uib.no`](https://git.app.uib.no/Hakon.Gylterud/inf226-2019-inforum) and make your
@@ -53,8 +61,10 @@ that your program compiles and runs well.
 
 Once you are done, you submit the assignment on
 [`mitt.uib.no`](https://mitt.uib.no/) as a link to your
-repository. This means you should not commit to the
-repository after the deadline has passed.
+fork – one link per group. This means you should not commit to the
+repository after the deadline has passed. Include the commit hash
+of the final commit (which you can find `git log`, for instance) in
+your submission on MittUiB.
 
 ## Updates
 
