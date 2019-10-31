@@ -301,7 +301,7 @@ public class InforumServer extends AbstractHandler
                   + "<input type=\"hidden\" name=\"message\" value=\"" + message + "\">"
                   + "<textarea name=\"content\" placeholder=\"Message\" cols=50 rows=10>"+ content +"</textarea>"
                   + "<div class=\"submit\"><input type=\"submit\" name=\"editmessage\" value=\"Update\"></div>"
-                  + "</forum>");
+                  + "</form>");
         out.println("</section>");
         out.println("</body>");
         out.println("</html>");
@@ -319,7 +319,7 @@ public class InforumServer extends AbstractHandler
         out.println("<form class=\"login\" action=\"/\" method=\"POST\">"
                   + "<div class=\"name\"><input type=\"text\" name=\"name\" placeholder=\"Forum name\"></div>"
                   + "<div class=\"submit\"><input type=\"submit\" name=\"newforum\" value=\"Create forum\"></div>"
-                  + "</forum>");
+                  + "</form>");
         out.println("</section>");
         out.println("</body>");
         out.println("</html>");
@@ -338,7 +338,7 @@ public class InforumServer extends AbstractHandler
                   + "<div class=\"name\"><input type=\"text\" name=\"topic\" placeholder=\"Topic\"></div>"
                   + "<textarea name=\"message\" placeholder=\"Message\" cols=50 rows=10></textarea>"
                   + "<div class=\"submit\"><input type=\"submit\" name=\"newthread\" value=\"Post\"></div>"
-                  + "</forum>");
+                  + "</form>");
         out.println("</section>");
         out.println("</body>");
         out.println("</html>");
@@ -537,7 +537,7 @@ public class InforumServer extends AbstractHandler
     out.println("  <div class=\"user\">" + context.value.user.value.name + "</div>");
     out.println("  <textarea class=\"messagebox\" placeholder=\"Post a message in this thread.\" name=\"message\"></textarea>");
     out.println("  <div class=\"controls\"><input style=\"float: right;\" type=\"submit\" name=\"newmessage\" value=\"Send\"></div>");
-    out.println("</forum>");
+    out.println("</form>");
     out.println("</section>");
     out.println("</body>");
     out.println("</html>");
