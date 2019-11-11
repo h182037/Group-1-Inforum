@@ -103,14 +103,21 @@ in lecture.*
 
 Any data you need to store for the password check can be kept in the `User` class, with
 appropriate updates to `storage.UserStorage`. Remember that the `User` class is *immutable*.
-Any new field must be immutable and `final`
-as well.
+Any new field must be immutable and `final` as well.
 
 *Additionally, while the session cookie is an unguessable UUID, you must set the
 correct protection flags on the session cookie.*
 
-**Hint**: An implementation of `scrypt` is already included as a dependency in `pom.xml`.
-If you prefer to use `argon2`, make sure to include it as well.
+**Hint**:
+
+ - We discussed password authentication in
+   [lecture 09](https://hakon.gylterud.net/teaching/inf226/2019/lecture-09.pdf),
+   where we among other things discussed the
+   [NIST](https://pages.nist.gov/800-63-3/sp800-63b.html) (in English)
+   and [NSM](https://www.nsm.stat.no/aktuelt/passordanbefalinger-fra-nasjonal-sikkerhetsmyndighet/) (in Norwegian)
+   authentication guidelines and [`scrypt`](https://www.tarsnap.com/scrypt/scrypt.pdf).
+ - An implementation of `scrypt` is already included as a dependency in `pom.xml`.
+   If you prefer to use `argon2`, make sure to include it as well.
 
 #### Notes – task 0
 
@@ -121,8 +128,7 @@ Here you write your notes about how this task was performed.
 The SQL code is currently wildly concatenating strings, leaving
 it wide open to injection attacks.
 
-*Use the techniques we hav studied to prevent
-SQL injection attacks on the forum.*
+*Take measures to prevent SQL injection attacks on the forum.*
 
 #### Notes – task 1
 
