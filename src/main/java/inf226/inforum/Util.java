@@ -15,6 +15,22 @@ public class Util {
        catch (Maybe.NothingException e) { /* Intensionally left blank */ }
    }
 
+    public static boolean checkString(String s) {
+        boolean valid = true;
+        for (int i = 0; i < s.length(); i++) {
+            char c = s.charAt(i);
+
+            if (('a' <= c && c <= 'z')
+                    || ('A' <= c && c <= 'Z')
+                    || ('0' <= c && c <= '9')) {
+                valid = true;
+            } else {
+                valid = false;
+            }
+        }
+        return valid;
+    }
+
 
 public static<A,Q, E extends Exception> Stored<A> updateSingle(Stored<A> stored, Storage<A,E> storage, Function<Stored<A>,A> update) throws E, DeletedException{
       boolean updated = true;
