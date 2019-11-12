@@ -10,6 +10,7 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="encoder-1.2.2" level="project" />
     <orderEntry type="library" name="Maven: org.eclipse.jetty:jetty-server:9.4.9.v20180320" level="project" />
     <orderEntry type="library" name="Maven: javax.servlet:javax.servlet-api:3.1.0" level="project" />
     <orderEntry type="library" name="Maven: org.eclipse.jetty:jetty-http:9.4.9.v20180320" level="project" />
@@ -23,6 +24,5 @@
     <orderEntry type="library" scope="TEST" name="Maven: org.junit.platform:junit-platform-engine:1.4.2" level="project" />
     <orderEntry type="library" name="Maven: org.xerial:sqlite-jdbc:3.28.0" level="project" />
     <orderEntry type="library" name="Maven: com.lambdaworks:scrypt:1.4.0" level="project" />
-    <orderEntry type="library" name="encoder-1.2.2" level="project" />
   </component>
 </module>
