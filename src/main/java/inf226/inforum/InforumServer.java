@@ -200,12 +200,10 @@ public class InforumServer extends AbstractHandler
                String password = (new Maybe<String> (request.getParameter("password"))).get();
                String password_repeat = (new Maybe<String> (request.getParameter("password_repeat"))).get();
                // TODO: Validate username. Check that passwords are valid and match
-                 if(Util.checkString(username) && Util.checkString(password) && password.equals(password_repeat)){
+                 if(Util.checkString(username) && Util.checkPassword(password) && password.equals(password_repeat)){
                      return inforum.registerUser(username,password);
                  }
-                 else{
-                     Util.throwMaybe(Maybe.nothing());
-                 }
+
              } catch (Maybe.NothingException e) {
                System.err.println("Broken usage of register");
              }
