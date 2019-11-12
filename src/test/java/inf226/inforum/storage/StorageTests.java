@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 import java.sql.DriverManager;
 import java.sql.Connection;
 import java.sql.SQLException;
-import org.junit.jupiter.api.Assertions;
+
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -212,7 +212,7 @@ public class StorageTests{
             UserStorage userStore = new UserStorage(connection);
             userStore.initialise();
 
-            User user = new User("Alice","image",Instant.now());
+            User user = new User("Alice", "password", "image",Instant.now());
             testSave(userStore,user);
         } catch (SQLException e) {
             fail(e);
@@ -235,7 +235,7 @@ public class StorageTests{
             userStore.initialise();
             contextStore.initialise();
 
-            Stored<User> user0 = userStore.save(new User("alice","image",Instant.now()));
+            Stored<User> user0 = userStore.save(new User("alice", "password", "image",Instant.now()));
 
             Message message0 = new Message("Alice","Hello world!",Instant.now());
             Message message1 = new Message("Bob","Hello Alice! What’s up`",Instant.now());

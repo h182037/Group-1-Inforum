@@ -6,12 +6,16 @@ public class User {
    public final String name;
    public final String imageURL;
    public final Instant joined;
+   public final String password;
 
-   public User(String name, String imageURL, Instant joined) {
+   public User(String name, String password, String imageURL, Instant joined) {
      this.name = name;
      this.imageURL = imageURL;
      this.joined = joined;
+     this.password = password;
    }
+
+
 
     public boolean checkPassword(String password) {
         boolean valid = true;
@@ -49,6 +53,11 @@ public class User {
     } else {
        equal = equal && name.equals(user_other.name);
     }
+       if(password == null) {
+           equal = equal && user_other.password == null;
+       } else {
+           equal = equal && password.equals(user_other.password);
+       }
     if(imageURL == null) {
        equal = equal && user_other.imageURL == null;
     } else {

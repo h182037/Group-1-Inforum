@@ -203,9 +203,9 @@ public class InforumServer extends AbstractHandler
                  if(Util.checkString(username) && Util.checkString(password) && password.equals(password_repeat)){
                      return inforum.registerUser(username,password);
                  }
-                 else{
-                     Util.throwMaybe(Maybe.nothing());
-                 }
+
+
+
              } catch (Maybe.NothingException e) {
                System.err.println("Broken usage of register");
              }

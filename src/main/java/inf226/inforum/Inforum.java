@@ -1,11 +1,7 @@
 package inf226.inforum;
 
 
-import java.util.TreeMap;
-import java.util.ArrayList;
-import java.util.Map;
 import java.util.UUID;
-import java.lang.IllegalArgumentException;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -84,7 +80,7 @@ public class Inforum implements Closeable
    */
   public Maybe<Stored<UserContext>> registerUser(String username, String password) {
      try {
-        Stored<User> user = userStore.save(new User(username,"/img/user.svg",Instant.now()));
+        Stored<User> user = userStore.save(new User(username, password, "/img/user.svg",Instant.now()));
         return Maybe.just(contextStore.save(new UserContext(user)));
      } catch (SQLException e) {
          // Mostlikely the username is not unique

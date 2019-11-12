@@ -1,13 +1,9 @@
 package inf226.inforum.storage;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.time.Instant;
 import java.util.UUID;
 
-import inf226.inforum.ImmutableList;
 import inf226.inforum.Maybe;
 import inf226.inforum.User;
 
@@ -25,7 +21,7 @@ public class UserStorage implements Storage<User,SQLException> {
 
    public synchronized  void initialise() throws SQLException {
        connection.createStatement()
-                 .executeUpdate("CREATE TABLE IF NOT EXISTS User (id TEXT PRIMARY KEY, version TEXT, name TEXT, imageURL TEXT, joined TEXT, UNIQUE(name))");
+                 .executeUpdate("CREATE TABLE IF NOT EXISTS User (id TEXT PRIMARY KEY, version TEXT, name TEXT, password TEXT, imageURL TEXT, joined TEXT, UNIQUE(name))");
    }
 
    @Override
@@ -34,9 +30,17 @@ public class UserStorage implements Storage<User,SQLException> {
      String sql =  "INSERT INTO User VALUES('" + stored.identity + "','"
                                                  + stored.version  + "','"
                                                  + user.name  + "','"
+                                                    + user.password + "','"
                                                  + user.imageURL + "','"
                                                  + user.joined.toString() + "')";
-     connection.createStatement().executeUpdate(sql);
+
+
+         PreparedStatement prepared = connection.prepareStatement(sql);
+        // prepared.setString(auth)
+         prepared.execute();
+
+
+    // connection.createStatement().executeUpdate(sql);
      return stored;
    }
 
@@ -77,9 +81,10 @@ public class UserStorage implements Storage<User,SQLException> {
       if(rs.next()) {
           final UUID version = UUID.fromString(rs.getString("version"));
           final String name = rs.getString("name");
+          final String password = rs.getString("password");
           final String imageURL = rs.getString("imageURL");
           final Instant joined = Instant.parse(rs.getString("joined"));
-          return (new Stored<User>(new User(name,imageURL,joined),id,version));
+          return (new Stored<User>(new User(name, password, imageURL, joined),id,version));
       } else {
           throw new DeletedException();
       }
