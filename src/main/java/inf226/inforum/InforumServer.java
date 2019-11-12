@@ -511,17 +511,17 @@ public class InforumServer extends AbstractHandler
     // TODO: Prevent XSS
     Thread thread = stored.value;
     printStandardHead(out);
-    out.println("<title>Inforum – " + thread.topic + "</title>");
+    out.println("<title>Inforum – " + Util.escapeString(thread.topic) + "</title>");
     out.println("</head>");
     out.println("<body>");
     out.println("<section>");
     out.println("  <header class=\"thread-head\">");
-    out.println("  <h2 class=\"topic\">" + thread.topic + "</h2>");
+    out.println("  <h2 class=\"topic\">" + Util.escapeString(thread.topic) + "</h2>");
     try {
        final String starter = thread.messages.last.get().value.sender;
        final Instant date = thread.messages.last.get().value.date;
-       out.println("  <div class=\"starter\">" + starter + "</div>");
-       out.println("  <div class=\"date\">" + date.toString() + "</div>");
+       out.println("  <div class=\"starter\">" + Util.escapeString(starter) + "</div>");
+       out.println("  <div class=\"date\">" + Util.escapeString(date.toString()) + "</div>");
     } catch(Maybe.NothingException e) {
        out.println("  <p>This thread is empty.</p>");
     }
@@ -529,11 +529,11 @@ public class InforumServer extends AbstractHandler
     thread.messages.reverse().forEach (sm -> {
          final Message m = sm.value;
          out.println("  <div class=\"entry\">");
-         out.println("     <div class=\"user\">" + m.sender + "</div>");
-         out.println("     <div class=\"text\">" + m.message + "</div>");
+         out.println("     <div class=\"user\">" + Util.escapeString(m.sender) + "</div>");
+         out.println("     <div class=\"text\">" + Util.escapeString(m.message) + "</div>");
          out.println("     <form class=\"controls\" action=\"/forum/" + path +"\" method=\"POST\">");
          out.println("        <input class=\"controls\" name=\"message\" type=\"hidden\" value=\""+ sm.identity +"\">");
-         out.println("        <input class=\"controls\" name=\"content\" type=\"hidden\" value=\""+ m.message +"\">");
+         out.println("        <input class=\"controls\" name=\"content\" type=\"hidden\" value=\""+ Util.escapeString(m.message) +"\">");
          out.println("        <input type=\"submit\" name=\"edit\" value=\"Edit\"/>\n");
          out.println("        <input type=\"submit\" name=\"deletemessage\" value=\"Delete\"/>\n");
          out.println("     </form>");

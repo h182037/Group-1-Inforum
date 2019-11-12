@@ -14,7 +14,7 @@ public class User {
    }
 
     public boolean checkPassword(String password) {
-  
+
         return true;
     }
 

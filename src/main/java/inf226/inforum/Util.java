@@ -31,6 +31,7 @@ public class Util {
         return valid;
     }
 
+
     public static boolean checkPassword(String password) {
         boolean valid = true;
         if(password.length() < 8 || password.length() > 64) {
@@ -50,6 +51,19 @@ public class Util {
         }
 
         return valid;
+    }
+
+
+
+    public static String escapeString(String s){
+       String escaped = s;
+       escaped = escaped.replaceAll("&","&amp");
+       escaped = escaped.replaceAll("<","&lt");
+       escaped = escaped.replaceAll(">","&gt");
+       escaped = escaped.replaceAll("\"","&quot");
+       escaped = escaped.replaceAll("'","&#x27");
+       escaped = escaped.replaceAll("/","&#x2F");
+       return escaped;
     }
 
 
