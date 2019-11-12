@@ -78,8 +78,11 @@ public class InforumServer extends AbstractHandler
     try {
         Stored<UserContext> con = session.get();
         System.err.println("Logged in as user: " + con.value.user.value.name);
-        // TODO: Set the correct flags on cookie.
-        response.addCookie(new Cookie("session",con.identity.toString()));
+
+        //Set HttpOnly flag to true
+        Cookie cookie = new Cookie("session",con.identity.toString());
+        cookie.setHttpOnly(true);
+        response.addCookie(cookie);
 
         // Handle actions
         if (request.getMethod().equals("POST")) {
@@ -187,7 +190,7 @@ public class InforumServer extends AbstractHandler
                String password = (new Maybe<String> (request.getParameter("password"))).get();
                return inforum.login(username,password);
              } catch (Maybe.NothingException e) {
-               // Not enough data suppied for login
+               // Not enough data supplied for login
                System.err.println("Broken usage of login");
              }
          } else if (request.getMethod().equals("POST") && request.getParameter("register") != null) {
@@ -197,7 +200,12 @@ public class InforumServer extends AbstractHandler
                String password = (new Maybe<String> (request.getParameter("password"))).get();
                String password_repeat = (new Maybe<String> (request.getParameter("password_repeat"))).get();
                // TODO: Validate username. Check that passwords are valid and match
-               return inforum.registerUser(username,password);
+                 if(Util.checkString(username) && Util.checkString(password) && password.equals(password_repeat)){
+                     return inforum.registerUser(username,password);
+                 }
+                 else{
+                     Util.throwMaybe(Maybe.nothing());
+                 }
              } catch (Maybe.NothingException e) {
                System.err.println("Broken usage of register");
              }
