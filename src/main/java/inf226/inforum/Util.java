@@ -32,7 +32,43 @@ public class Util {
     }
 
 
-public static<A,Q, E extends Exception> Stored<A> updateSingle(Stored<A> stored, Storage<A,E> storage, Function<Stored<A>,A> update) throws E, DeletedException{
+    public static boolean checkPassword(String password) {
+        boolean valid = true;
+        if(password.length() < 8 || password.length() > 64) {
+            valid = false;
+        }else{
+            for (int i = 0; i <password.length(); i++){
+                char c = password.charAt(i);
+
+                if(       ('a'  <= c && c <= 'z')
+                        || ('A' <= c && c <= 'Z')
+                        || ('0' <= c && c <= '9')){
+                    valid=true;
+                }else{
+                    valid=false;
+                }
+            }
+        }
+
+        return valid;
+    }
+
+
+
+    public static String escapeString(String s){
+       String escaped = s;
+       escaped = escaped.replaceAll("&","&amp");
+       escaped = escaped.replaceAll("<","&lt");
+       escaped = escaped.replaceAll(">","&gt");
+       escaped = escaped.replaceAll("\"","&quot");
+       escaped = escaped.replaceAll("'","&#x27");
+       escaped = escaped.replaceAll("/","&#x2F");
+       return escaped;
+    }
+
+
+
+    public static<A,Q, E extends Exception> Stored<A> updateSingle(Stored<A> stored, Storage<A,E> storage, Function<Stored<A>,A> update) throws E, DeletedException{
       boolean updated = true;
       while(true) {
         try {
