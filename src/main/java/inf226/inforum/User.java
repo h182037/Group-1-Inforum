@@ -4,13 +4,17 @@ import java.time.Instant;
 
 public class User {
    public final String name;
+    public final String password;
    public final String imageURL;
    public final Instant joined;
 
-   public User(String name, String imageURL, Instant joined) {
+
+   public User(String name, String password, String imageURL, Instant joined) {
      this.name = name;
+       this.password = password;
      this.imageURL = imageURL;
      this.joined = joined;
+
    }
 
     public boolean checkPassword(String password) {
@@ -29,10 +33,15 @@ public class User {
     final User user_other = (User) other;
     boolean equal = true;
     if(name == null) {
-       equal = equal && user_other.name == null;
-    } else {
-       equal = equal && name.equals(user_other.name);
+            equal = equal && user_other.name == null;
+        } else {
+            equal = equal && name.equals(user_other.name);
     }
+       if(password == null) {
+           equal = equal && user_other.password == null;
+       } else {
+           equal = equal && password.equals(user_other.password);
+       }
     if(imageURL == null) {
        equal = equal && user_other.imageURL == null;
     } else {
