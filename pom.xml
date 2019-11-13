@@ -24,6 +24,25 @@
       <version>${jettyVersion}</version>
     </dependency>
 
+      <dependency>
+          <groupId>org.owasp.antisamy</groupId>
+          <artifactId>antisamy</artifactId>
+          <version>1.5.8</version>
+      </dependency>
+
+      <dependency>
+          <groupId>org.apache.commons</groupId>
+          <artifactId>commons-text</artifactId>
+          <version>1.8</version>
+      </dependency>
+
+
+      <dependency>
+          <groupId>nu.validator.htmlparser</groupId>
+          <artifactId>htmlparser</artifactId>
+          <version>1.4</version>
+      </dependency>
+
     <dependency>
         <groupId>org.junit.jupiter</groupId>
         <artifactId>junit-jupiter-api</artifactId>
