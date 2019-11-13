@@ -1,8 +1,0 @@
--------------------------------------------------------------------------------
-Test set: inf226.inforum.InforumTest
--------------------------------------------------------------------------------
-Tests run: 1, Failures: 0, Errors: 1, Skipped: 0, Time elapsed: 0.815 s <<< FAILURE! - in inf226.inforum.InforumTest
-deleteForumMessage  Time elapsed: 0.81 s  <<< ERROR!
-java.lang.IllegalArgumentException: Empty key
-	at inf226.inforum.InforumTest.deleteForumMessage(InforumTest.java:12)
-

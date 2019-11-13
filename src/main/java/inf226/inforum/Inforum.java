@@ -16,6 +16,7 @@ import com.lambdaworks.crypto.SCryptUtil;
 import inf226.inforum.storage.*;
 import inf226.inforum.storage.DeletedException;
 import sun.security.rsa.RSAPrivateCrtKeyImpl;
+import org.apache.commons.text.StringEscapeUtils;
 
 
 /**
@@ -139,7 +140,7 @@ public class Inforum implements Closeable
         // We fill out some values automatically.
         Stored<Message> m 
             = messageStore.save(new Message(context.value.user.value.name,
-                                            message,
+                StringEscapeUtils.escapeHtml4(message),
                                             Instant.now()));
         Util.updateSingle(thread, threadStore,
           t -> t.value.addMessage(m));
@@ -211,8 +212,9 @@ public class Inforum implements Closeable
 
   public void editMessage(UUID message, String content, Stored<UserContext> context) {
       try {
+         String con = StringEscapeUtils.escapeHtml4(content);
          Util.updateSingle(messageStore.renew(message), messageStore,
-            msg -> msg.value.setMessage(content));
+            msg -> msg.value.setMessage(con));
       } catch (Exception e) {
          System.err.println(e);
       }

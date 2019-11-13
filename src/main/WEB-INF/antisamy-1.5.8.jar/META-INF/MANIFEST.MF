@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Implementation-Title: OWASP AntiSamy
+Package: org.owasp.validator.html
+Implementation-Version: 1.5.8
+Built-By: hw491ej
+Implementation-Vendor-Id: org.owasp.antisamy
+Created-By: Apache Maven 3.5.3
+Build-Jdk: 1.8.0_172
+Implementation-URL: https://github.com/nahsra/antisamy
+Main-Class: org.owasp.validator.html.AntiSamy
+
