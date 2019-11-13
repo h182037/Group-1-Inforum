@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
-    <data-source source="LOCAL" name="production" uuid="246f28a9-2508-4154-913d-3da9019d34f6">
+    <data-source source="LOCAL" name="production" uuid="ab104356-017c-4453-a1ad-566ca21cbdc0">
       <driver-ref>sqlite.xerial</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
@@ -9,12 +9,6 @@
       <driver-properties>
         <property name="enable_load_extension" value="true" />
       </driver-properties>
-    </data-source>
-    <data-source source="LOCAL" name="production [2]" uuid="3eaa9f11-4e6a-4d3d-b93f-ff5f67f986ef">
-      <driver-ref>sqlite.xerial</driver-ref>
-      <synchronize>true</synchronize>
-      <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
-      <jdbc-url>jdbc:sqlite:C:\Users\sindr\Documents\INF226\Group-1-Inforum\production.db</jdbc-url>
     </data-source>
   </component>
 </project>
