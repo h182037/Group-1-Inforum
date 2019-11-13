@@ -1,4 +1,12 @@
 -------------------------------------------------------------------------------
 Test set: inf226.inforum.storage.StorageTests
 -------------------------------------------------------------------------------
-Tests run: 9, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.005 s - in inf226.inforum.storage.StorageTests
+Tests run: 9, Failures: 1, Errors: 0, Skipped: 0, Time elapsed: 0.06 s <<< FAILURE! - in inf226.inforum.storage.StorageTests
+testUserContextStorageRenew  Time elapsed: 0.024 s  <<< FAILURE!
+org.opentest4j.AssertionFailedError: 
+	at inf226.inforum.storage.StorageTests.testRenew(StorageTests.java:55)
+	at inf226.inforum.storage.StorageTests.testUserContextStorageRenew(StorageTests.java:257)
+Caused by: java.sql.SQLException: no such column: 'password'
+	at inf226.inforum.storage.StorageTests.testRenew(StorageTests.java:46)
+	at inf226.inforum.storage.StorageTests.testUserContextStorageRenew(StorageTests.java:257)
+

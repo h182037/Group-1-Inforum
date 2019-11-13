@@ -11,8 +11,11 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 import java.time.Instant;
+
+import com.lambdaworks.crypto.SCryptUtil;
 import inf226.inforum.storage.*;
 import inf226.inforum.storage.DeletedException;
+import sun.security.rsa.RSAPrivateCrtKeyImpl;
 
 
 /**
@@ -79,8 +82,11 @@ public class Inforum implements Closeable
    *  Register a new user.
    */
   public Maybe<Stored<UserContext>> registerUser(String username, String password) {
+
+     String hashed = SCryptUtil.scrypt(password,16384,8,1);
+      SCryptUtil.check(password, hashed);
      try {
-        Stored<User> user = userStore.save(new User(username, password,"/img/user.svg",Instant.now()));
+        Stored<User> user = userStore.save(new User(username, hashed,"/img/user.svg",Instant.now()));
         return Maybe.just(contextStore.save(new UserContext(user)));
 
      } catch (SQLException e) {

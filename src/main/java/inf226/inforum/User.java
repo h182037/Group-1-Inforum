@@ -1,5 +1,11 @@
 package inf226.inforum;
 
+import com.lambdaworks.crypto.SCryptUtil;
+
+import java.io.Console;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.time.Instant;
 
 public class User {
@@ -7,6 +13,7 @@ public class User {
     public final String password;
    public final String imageURL;
    public final Instant joined;
+
 
 
    public User(String name, String password, String imageURL, Instant joined) {
@@ -17,9 +24,25 @@ public class User {
 
    }
 
-    public boolean checkPassword(String password) {
+    public static boolean checkPassword(String password) {
+        boolean valid = true;
+        if(password.length() < 8 || password.length() > 64) {
+            valid = false;
+        }else{
+            for (int i = 0; i <password.length(); i++){
+                char c = password.charAt(i);
 
-        return true;
+                if(       ('a'  <= c && c <= 'z')
+                        || ('A' <= c && c <= 'Z')
+                        || ('0' <= c && c <= '9')){
+                    valid=true;
+                }else{
+                    valid=false;
+                }
+            }
+        }
+
+        return valid;
     }
 
 

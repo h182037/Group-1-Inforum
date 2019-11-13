@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd" name="inf226.inforum.storage.StorageTests" time="0.005" tests="9" errors="0" skipped="0" failures="0">
+<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd" name="inf226.inforum.storage.StorageTests" time="0.06" tests="9" errors="0" skipped="0" failures="1">
   <properties>
     <property name="sun.desktop" value="windows"/>
     <property name="awt.toolkit" value="sun.awt.windows.WToolkit"/>
@@ -18,7 +18,7 @@
     <property name="user.country" value="NO"/>
     <property name="sun.java.launcher" value="SUN_STANDARD"/>
     <property name="sun.boot.library.path" value="C:\Program Files\Java\jdk1.8.0_221\jre\bin"/>
-    <property name="sun.java.command" value="C:\Users\sindr\AppData\Local\Temp\surefire1467723974164531617\surefirebooter884503288315221606.jar C:\Users\sindr\AppData\Local\Temp\surefire1467723974164531617 2019-11-12T13-26-12_042-jvmRun1 surefire7539223674925037118tmp surefire_04962200176129466033tmp"/>
+    <property name="sun.java.command" value="C:\Users\sindr\AppData\Local\Temp\surefire6083202826640170192\surefirebooter8268425374875370409.jar C:\Users\sindr\AppData\Local\Temp\surefire6083202826640170192 2019-11-13T11-40-42_525-jvmRun1 surefire1740979201982789299tmp surefire_06352212947607012117tmp"/>
     <property name="surefire.test.class.path" value="C:\Users\sindr\Documents\INF226\Group-1-Inforum\target\test-classes;C:\Users\sindr\Documents\INF226\Group-1-Inforum\target\classes;C:\Users\sindr\.m2\repository\org\eclipse\jetty\jetty-server\9.4.9.v20180320\jetty-server-9.4.9.v20180320.jar;C:\Users\sindr\.m2\repository\javax\servlet\javax.servlet-api\3.1.0\javax.servlet-api-3.1.0.jar;C:\Users\sindr\.m2\repository\org\eclipse\jetty\jetty-http\9.4.9.v20180320\jetty-http-9.4.9.v20180320.jar;C:\Users\sindr\.m2\repository\org\eclipse\jetty\jetty-util\9.4.9.v20180320\jetty-util-9.4.9.v20180320.jar;C:\Users\sindr\.m2\repository\org\eclipse\jetty\jetty-io\9.4.9.v20180320\jetty-io-9.4.9.v20180320.jar;C:\Users\sindr\.m2\repository\org\junit\jupiter\junit-jupiter-api\5.4.2\junit-jupiter-api-5.4.2.jar;C:\Users\sindr\.m2\repository\org\apiguardian\apiguardian-api\1.0.0\apiguardian-api-1.0.0.jar;C:\Users\sindr\.m2\repository\org\opentest4j\opentest4j\1.1.1\opentest4j-1.1.1.jar;C:\Users\sindr\.m2\repository\org\junit\platform\junit-platform-commons\1.4.2\junit-platform-commons-1.4.2.jar;C:\Users\sindr\.m2\repository\org\junit\jupiter\junit-jupiter-engine\5.4.2\junit-jupiter-engine-5.4.2.jar;C:\Users\sindr\.m2\repository\org\junit\platform\junit-platform-engine\1.4.2\junit-platform-engine-1.4.2.jar;C:\Users\sindr\.m2\repository\org\xerial\sqlite-jdbc\3.28.0\sqlite-jdbc-3.28.0.jar;C:\Users\sindr\.m2\repository\com\lambdaworks\scrypt\1.4.0\scrypt-1.4.0.jar;"/>
     <property name="sun.cpu.endian" value="little"/>
     <property name="user.home" value="C:\Users\sindr"/>
@@ -31,7 +31,7 @@
     <property name="java.vm.specification.vendor" value="Oracle Corporation"/>
     <property name="java.specification.name" value="Java Platform API Specification"/>
     <property name="java.awt.graphicsenv" value="sun.awt.Win32GraphicsEnvironment"/>
-    <property name="surefire.real.class.path" value="C:\Users\sindr\AppData\Local\Temp\surefire1467723974164531617\surefirebooter884503288315221606.jar"/>
+    <property name="surefire.real.class.path" value="C:\Users\sindr\AppData\Local\Temp\surefire6083202826640170192\surefirebooter8268425374875370409.jar"/>
     <property name="sun.boot.class.path" value="C:\Program Files\Java\jdk1.8.0_221\jre\lib\resources.jar;C:\Program Files\Java\jdk1.8.0_221\jre\lib\rt.jar;C:\Program Files\Java\jdk1.8.0_221\jre\lib\sunrsasign.jar;C:\Program Files\Java\jdk1.8.0_221\jre\lib\jsse.jar;C:\Program Files\Java\jdk1.8.0_221\jre\lib\jce.jar;C:\Program Files\Java\jdk1.8.0_221\jre\lib\charsets.jar;C:\Program Files\Java\jdk1.8.0_221\jre\lib\jfr.jar;C:\Program Files\Java\jdk1.8.0_221\jre\classes"/>
     <property name="user.script" value=""/>
     <property name="sun.management.compiler" value="HotSpot 64-Bit Tiered Compilers"/>
@@ -60,13 +60,21 @@
     <property name="sun.io.unicode.encoding" value="UnicodeLittle"/>
     <property name="java.class.version" value="52.0"/>
   </properties>
-  <testcase name="testMessageStorageRenew" classname="inf226.inforum.storage.StorageTests" time="0"/>
-  <testcase name="testMessageStorageSave" classname="inf226.inforum.storage.StorageTests" time="0"/>
-  <testcase name="testUserContextStorageRenew" classname="inf226.inforum.storage.StorageTests" time="0"/>
-  <testcase name="storedNewVerion" classname="inf226.inforum.storage.StorageTests" time="0"/>
-  <testcase name="testMessageStorageUpdate" classname="inf226.inforum.storage.StorageTests" time="0"/>
-  <testcase name="testUserStorageSave" classname="inf226.inforum.storage.StorageTests" time="0"/>
-  <testcase name="testThreadStorageRenew" classname="inf226.inforum.storage.StorageTests" time="0"/>
-  <testcase name="testThreadStorageSave" classname="inf226.inforum.storage.StorageTests" time="0.001"/>
-  <testcase name="testThreadStorageUpdate" classname="inf226.inforum.storage.StorageTests" time="0.002"/>
+  <testcase name="testMessageStorageRenew" classname="inf226.inforum.storage.StorageTests" time="0.003"/>
+  <testcase name="testMessageStorageSave" classname="inf226.inforum.storage.StorageTests" time="0.002"/>
+  <testcase name="testUserContextStorageRenew" classname="inf226.inforum.storage.StorageTests" time="0.024">
+    <failure type="org.opentest4j.AssertionFailedError:">org.opentest4j.AssertionFailedError: 
+	at inf226.inforum.storage.StorageTests.testRenew(StorageTests.java:55)
+	at inf226.inforum.storage.StorageTests.testUserContextStorageRenew(StorageTests.java:257)
+Caused by: java.sql.SQLException: no such column: 'password'
+	at inf226.inforum.storage.StorageTests.testRenew(StorageTests.java:46)
+	at inf226.inforum.storage.StorageTests.testUserContextStorageRenew(StorageTests.java:257)
+</failure>
+  </testcase>
+  <testcase name="storedNewVerion" classname="inf226.inforum.storage.StorageTests" time="0.002"/>
+  <testcase name="testMessageStorageUpdate" classname="inf226.inforum.storage.StorageTests" time="0.002"/>
+  <testcase name="testUserStorageSave" classname="inf226.inforum.storage.StorageTests" time="0.002"/>
+  <testcase name="testThreadStorageRenew" classname="inf226.inforum.storage.StorageTests" time="0.005"/>
+  <testcase name="testThreadStorageSave" classname="inf226.inforum.storage.StorageTests" time="0.002"/>
+  <testcase name="testThreadStorageUpdate" classname="inf226.inforum.storage.StorageTests" time="0.005"/>
 </testsuite>
