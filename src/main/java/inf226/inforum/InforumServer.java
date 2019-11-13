@@ -6,7 +6,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
 import java.io.IOException;
-
 import org.apache.commons.text.StringEscapeUtils;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.Request;
@@ -18,11 +17,9 @@ import java.lang.IllegalArgumentException;
 import java.sql.DriverManager;
 import java.sql.Connection;
 import java.sql.SQLException;
-
 import java.time.Instant;
 import inf226.inforum.storage.*;
-import org.owasp.validator.html.PolicyException;
-import org.owasp.validator.html.ScanException;
+
 
 /**
  * The InforumServer class handles all HTTP and HTML component.
@@ -36,8 +33,6 @@ public class InforumServer extends AbstractHandler
   private final File style = new File("style.css");
   private final File login = new File("login.html");
   private final File register = new File("register.html");
-  //TODO edit this
-  private final String POLICY_FILE_LOCATION = "C:\\Users\\Sindre\\Desktop\\Inforum\\inf226-2019-inforum\\src\\main\\WEB-INF\\antisamy-1.5.8.jar\\antisamy-ebay.xml";
   private static Inforum inforum;
 
   /**
@@ -170,7 +165,7 @@ public class InforumServer extends AbstractHandler
                          },
                thread -> { try {
                              handleThread(response.getWriter(),object,request,response, thread, context);
-                           } catch (IOException | ScanException | PolicyException e) { }} );
+                           } catch (IOException e) { }} );
      } catch (Maybe.NothingException e) {
          // Object resolution failed
          response.setStatus(HttpServletResponse.SC_NOT_FOUND);
@@ -442,7 +437,7 @@ public class InforumServer extends AbstractHandler
                      HttpServletRequest request,
                      HttpServletResponse response,
                      Stored<Thread> thread,
-                     Stored<UserContext> context) throws ScanException, PolicyException {
+                     Stored<UserContext> context) {
        if (request.getMethod().equals("POST") && request.getParameter("newmessage") != null) {
           try {
                System.err.println("Creating a new message.");
