@@ -59,7 +59,7 @@ public class Util {
         try {
           return storage.update(stored,update.apply(stored));
         } catch (UpdatedException e) {
-          stored = (Stored<A>)e.newObject;
+          stored = (Stored<A>) e.newObject;
         }
       }
    }

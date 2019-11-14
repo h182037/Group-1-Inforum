@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html lang="en-GB">
 <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <meta name="viewport" http-equiv="Content-Security-Policy"
+          content="default-src 'self'; width=device-width, initial-scale=1.0, user-scalable=yes">
     <link rel="stylesheet" href="style.css">
     <title>Register an account on Inforum</title>
 </head>
@@ -12,6 +13,7 @@
     <div class="username"><input type="text" name="username" placeholder="Username"></div>
     <div class="password"><input type="password" name="password" placeholder="Password"></div>
     <div class="password"><input type="password" name="password_repeat" placeholder="Retype password"></div>
+      <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
     <div class="button"><input type="submit" name="register" value="Register"></div>
   </form>
 </body>
