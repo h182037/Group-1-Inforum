@@ -23,6 +23,8 @@
       <artifactId>jetty-server</artifactId>
       <version>${jettyVersion}</version>
     </dependency>
+      <!-- https://mvnrepository.com/artifact/crypto-random/crypto-random -->
+      <!-- https://mvnrepository.com/artifact/org.apache.commons/commons-rng-simple -->
 
       <dependency>
           <groupId>org.apache.commons</groupId>
@@ -47,8 +49,9 @@
         <artifactId>scrypt</artifactId>
         <version>1.4.0</version>
     </dependency>
-  </dependencies>
 
+
+  </dependencies>
   <build>
     <plugins>
       <plugin>
