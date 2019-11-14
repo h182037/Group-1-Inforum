@@ -580,7 +580,7 @@ public class InforumServer extends AbstractHandler
   {
     try{
        inforum = new Inforum("production.db");
-       Server server = new Server(8080);
+       Server server = new Server(8082);
        server.setHandler(new InforumServer());
    
        server.start();

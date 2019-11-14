@@ -84,7 +84,7 @@ public class Inforum implements Closeable
         return Maybe.just(contextStore.save(new UserContext(user)));
      } catch (SQLException e) {
          // Mostlikely the username is not unique
-         System.err.println(e);
+         System.err.println("Register user in inforum: " + e);
      }
      return Maybe.nothing();
   }
@@ -101,7 +101,7 @@ public class Inforum implements Closeable
             con -> con.value.addForum(forum));
          return Maybe.just(forum);
      } catch (SQLException e) {
-         System.err.println(e);
+         System.err.println("CREATEFORUM " +e);
      } catch (DeletedException e) {
          System.err.println(e);
      }
@@ -119,7 +119,7 @@ public class Inforum implements Closeable
          System.err.println("Session token expried:" + id);
      } catch (SQLException e) {
          // Retrieving session from storage failed
-         System.err.println(e);
+         System.err.println("inforum restore" + e);
      } 
     return Maybe.nothing();
   }

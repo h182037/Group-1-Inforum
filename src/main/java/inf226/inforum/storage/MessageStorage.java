@@ -1,9 +1,6 @@
 package inf226.inforum.storage;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.time.Instant;
 import java.util.UUID;
 
@@ -30,12 +27,15 @@ public class MessageStorage implements Storage<Message,SQLException> {
    @Override
    public Stored<Message> save(Message message) throws SQLException {
      final Stored<Message> stored = new Stored<Message>(message);
-     String sql =  "INSERT INTO Message VALUES('" + stored.identity + "','"
-                                                 + stored.version  + "','"
-                                                 + message.sender  + "','"
-                                                 + message.message + "','"
-                                                 + message.date.toString() + "')";
-     connection.createStatement().executeUpdate(sql);
+
+     PreparedStatement stmt = connection.prepareStatement("INSERT INTO Message VALUES(?,?,?,?,?)");
+     stmt.setString(1,stored.identity.toString());
+     stmt.setString(2,stored.version.toString());
+     stmt.setString(3,message.sender);
+     stmt.setString(4,message.message);
+     stmt.setString(5,message.date.toString());
+     stmt.executeUpdate();
+
      return stored;
    }
 
@@ -44,12 +44,15 @@ public class MessageStorage implements Storage<Message,SQLException> {
      final Stored<Message> current = renew(message.identity);
      final Stored<Message> updated = current.newVersion(new_message);
      if(current.version.equals(message.version)) {
-        String sql =  "UPDATE Message SET (version, sender, message, date) = ('"
-                                                     + updated.version  + "','"
-                                                     + new_message.sender  + "','"
-                                                     + new_message.message + "','"
-                                                     + new_message.date.toString() + "') WHERE id='" + updated.identity + "'";
-        connection.createStatement().executeUpdate(sql);
+
+         PreparedStatement stmt = connection.prepareStatement("UPDATE Message SET (version, sender, message, date) = (?,?,?,?) WHERE id= ?");
+         stmt.setString(1,updated.version.toString());
+         stmt.setString(2, new_message.sender);
+         stmt.setString(3,new_message.message);
+         stmt.setString(4,new_message.date.toString());
+         stmt.setString(5, updated.identity.toString());
+
+        stmt.executeUpdate();
      } else {
         throw new UpdatedException(current);
      }
@@ -60,8 +63,11 @@ public class MessageStorage implements Storage<Message,SQLException> {
    public synchronized void delete(Stored<Message> message) throws UpdatedException,DeletedException,SQLException {
      final Stored<Message> current = renew(message.identity);
      if(current.version.equals(message.version)) {
-        String sql =  "DELETE FROM Message WHERE id ='" + message.identity + "'";
-        connection.createStatement().executeUpdate(sql);
+
+         PreparedStatement stmt = connection.prepareStatement("DELETE FROM Message WHERE id =?");
+         stmt.setString(1,message.identity.toString());
+         stmt.executeUpdate();
+
      } else {
         throw new UpdatedException(current);
      }
@@ -69,9 +75,12 @@ public class MessageStorage implements Storage<Message,SQLException> {
 
    @Override
    public synchronized Stored<Message> renew(UUID id) throws DeletedException,SQLException{
-      final String sql = "SELECT version,sender,message,date FROM Message WHERE id = '" + id.toString() + "'";
-      final Statement statement = connection.createStatement();
-      final ResultSet rs = statement.executeQuery(sql);
+
+
+       PreparedStatement stmt = connection.prepareStatement("SELECT version,sender,message,date FROM Message WHERE id = ?");
+
+       stmt.setString(1,id.toString());
+       final ResultSet rs = stmt.executeQuery();
 
       if(rs.next()) {
           final UUID version = UUID.fromString(rs.getString("version"));

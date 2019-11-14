@@ -1,5 +1,11 @@
 package inf226.inforum;
 
+import com.lambdaworks.crypto.SCryptUtil;
+import inf226.inforum.storage.DeletedException;
+import inf226.inforum.storage.UserStorage;
+
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.time.Instant;
 
 public class User {
@@ -7,6 +13,7 @@ public class User {
    public final String imageURL;
    public final Instant joined;
    public final String password;
+
 
    public User(String name, String password, String imageURL, Instant joined) {
      this.name = name;
@@ -17,25 +24,31 @@ public class User {
 
 
 
-    public boolean checkPassword(String password) {
-        boolean valid = true;
-        if(password.length() < 8 || password.length() > 64) {
-            valid = false;
-        }else{
-            for (int i = 0; i <password.length(); i++){
-                char c = password.charAt(i);
+    public boolean checkPassword(String password) throws DeletedException {
+        String hashed = SCryptUtil.scrypt(password,16384,8,1);
+        boolean check = true;
+        try {
+            UserStorage us;
+            us = new UserStorage();
 
-                if(       ('a'  <= c && c <= 'z')
-                        || ('A' <= c && c <= 'Z')
-                        || ('0' <= c && c <= '9')){
-                    valid=true;
-                }else{
-                    valid=false;
-                }
-            }
+            check = us.checkPasswordWithDB(hashed);
+            return check;
+
+        } catch (SQLException e) {
+            System.err.println("Check password" + e);
         }
 
-        return valid;
+        return check;
+
+
+    }
+    public boolean checkName(String name) throws SQLException, DeletedException {
+        UserStorage us;
+        us = new UserStorage();
+        boolean check = us.getUserAuth(name);
+
+        return true;
+
     }
 
 
