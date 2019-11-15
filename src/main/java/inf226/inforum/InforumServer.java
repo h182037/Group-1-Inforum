@@ -54,7 +54,12 @@ public class InforumServer extends AbstractHandler
 
 
     // Pages which do not require login
-    
+
+      response.addHeader("X-FRAME-OPTIONS", "DENY");
+      response.addHeader("X-XSS-Protection", "1");
+      response.addHeader("mode", "block");
+      response.addHeader("X-Content-Type-Options", "nosniff");
+      response.addHeader("Content-Security-Policy", "default-src 'self'");
     if (target.equals("/style.css")) {
         serveFile(response,style,"text/css;charset=utf-8");
         baseRequest.setHandled(true);
@@ -197,7 +202,7 @@ public class InforumServer extends AbstractHandler
                String password_repeat = (new Maybe<String> (request.getParameter("password_repeat"))).get();
                // TODO: Validate username. Check that passwords are valid and match
 
-                 if(Util.checkString(username) && Util.checkString(password) && password.equals(password_repeat)){
+                 if(Util.checkString(username) && Util.checkPassword(password) && password.equals(password_repeat)){
                      return inforum.registerUser(username,password);
                  }
 
@@ -271,8 +276,7 @@ public class InforumServer extends AbstractHandler
         out.println("<html lang=\"en-GB\">");
         out.println("<head>");
         //Only allow content from this application.
-        out.println("    <meta name=\"viewport\" http-equiv=\"Content-Security-Policy\"\n" +
-                "          content=\"default-src 'self'; width=device-width, initial-scale=1.0, user-scalable=yes\">");
+        out.println("<meta name=\"viewport\" width=device-width initial-scale=1.0 user-scalable=yes\">");
         out.println("<style type=\"text/css\">code{white-space: pre;}</style>");
         out.println("<link rel=\"stylesheet\" href=\"/style.css\">");
   }
@@ -579,6 +583,7 @@ public class InforumServer extends AbstractHandler
            os.write(buffer, 0, len);
         }
         is.close();
+
         response.setStatus(HttpServletResponse.SC_OK);
       } catch (IOException e) {
         response.setStatus(HttpServletResponse.SC_NOT_FOUND);
