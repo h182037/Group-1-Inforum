@@ -8,6 +8,8 @@ import java.util.UUID;
 
 /**
  * TODO: Secure the following for SQL injection vulnerabilities.
+ *
+ * Every SQL  injection has been secured, with preferred statements
  */
 
 public class ThreadStorage implements Storage<Thread,SQLException> {
@@ -28,6 +30,7 @@ public class ThreadStorage implements Storage<Thread,SQLException> {
                  .executeUpdate("CREATE TABLE IF NOT EXISTS ThreadMessage (thread TEXT, message TEXT, ordinal INTEGER, PRIMARY KEY(thread, message), FOREIGN KEY(message) REFERENCES Message(id) ON DELETE CASCADE, FOREIGN KEY(thread) REFERENCES Thread(id) ON DELETE CASCADE)");
    }
 
+    // Task 1, Preferred statement made
    @Override
    public synchronized Stored<Thread> renew(UUID id) throws DeletedException,SQLException {
 
@@ -61,7 +64,7 @@ public class ThreadStorage implements Storage<Thread,SQLException> {
           throw new DeletedException();
       }
    }
-
+    // Task 1, Preferred statement made
    @Override
    public synchronized Stored<Thread> save(Thread thread) throws SQLException {
      final Stored<Thread> stored = new Stored<Thread>(thread);
@@ -92,7 +95,7 @@ public class ThreadStorage implements Storage<Thread,SQLException> {
 
      return stored;
    }
-
+    // Task 1, Preferred statement made
    @Override
    public synchronized Stored<Thread> update(Stored<Thread> thread, Thread new_thread) throws UpdatedException,DeletedException,SQLException {
      final Stored<Thread> current = renew(thread.identity);
@@ -127,7 +130,7 @@ public class ThreadStorage implements Storage<Thread,SQLException> {
      }
      return updated;
    }
-
+    // Task 1, Preferred statement made
    @Override
    public synchronized void delete(Stored<Thread> thread) throws UpdatedException,DeletedException,SQLException {
      final Stored<Thread> current = renew(thread.identity);
