@@ -14,6 +14,7 @@ public class Util{
        catch (Maybe.NothingException e) { /* Intensionally left blank */ }
    }
 
+   //Task 0
     public static boolean checkString(String s) {
         boolean valid = true;
         for (int i = 0; i < s.length(); i++) {
@@ -30,10 +31,7 @@ public class Util{
         return valid;
     }
 
-
-
-
-
+// TASK 0
 public static boolean checkPassword(String password) {
         boolean valid = true;
         if(password.length() < 8 || password.length() > 64) {
@@ -51,10 +49,8 @@ public static boolean checkPassword(String password) {
                 }
             }
         }
-
         return valid;
     }
-
 
     public static<A,Q, E extends Exception> Stored<A> updateSingle(Stored<A> stored, Storage<A,E> storage, Function<Stored<A>,A> update) throws E, DeletedException{
       boolean updated = true;

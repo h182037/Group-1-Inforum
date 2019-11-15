@@ -64,6 +64,8 @@ public class User {
         return password;
     }
 
+
+    //Task 0
     public boolean checkPassword(String password) throws DeletedException, UnsupportedEncodingException, GeneralSecurityException {
         boolean check = false;
 

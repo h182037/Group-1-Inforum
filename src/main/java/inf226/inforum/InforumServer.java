@@ -65,7 +65,12 @@ public class InforumServer extends AbstractHandler
 
 
     // Pages which do not require login
-    
+
+      response.addHeader("X-FRAME-OPTIONS", "DENY");
+      response.addHeader("X-XSS-Protection", "1");
+      response.addHeader("mode", "block");
+      response.addHeader("X-Content-Type-Options", "nosniff");
+      response.addHeader("Content-Security-Policy", "default-src 'self'");
     if (target.equals("/style.css")) {
         serveFile(response,style,"text/css;charset=utf-8");
         baseRequest.setHandled(true);
@@ -206,9 +211,9 @@ public class InforumServer extends AbstractHandler
                String username = (new Maybe<String> (request.getParameter("username"))).get();
                String password = (new Maybe<String> (request.getParameter("password"))).get();
                String password_repeat = (new Maybe<String> (request.getParameter("password_repeat"))).get();
-               // TODO: Validate username. Check that passwords are valid and match
+               //  Task 0
 
-                 if(Util.checkString(username) && Util.checkString(password) && password.equals(password_repeat)){
+                 if(Util.checkString(username) && Util.checkPassword(password) && password.equals(password_repeat)){
                      return inforum.registerUser(username,password);
                  }
 
@@ -244,22 +249,22 @@ public class InforumServer extends AbstractHandler
           Stored<Thread> thread = tlist.head().get();
           String handle = forum.value.handle;
           topiclist.append("<li><a href=\"" + prefix + "/" + handle + "/" + thread.identity +"\">" +
-                  StringEscapeUtils.escapeHtml4(thread.value.topic) + "</a></li>\n");
+                  thread.value.topic + "</a></li>\n");
           tlist = tlist.tail().get();
           thread = tlist.head().get();
           topiclist.append("<li><a href=\"" + prefix + "/" + handle + "/" + thread.identity +"\">" +
-                  StringEscapeUtils.escapeHtml4(thread.value.topic) + "</a></li>\n");
+                  thread.value.topic + "</a></li>\n");
           tlist = tlist.tail().get();
           thread = tlist.head().get();
           topiclist.append("<li><a href=\"" + prefix + "/" + handle + "/" + thread.identity +"\">" +
-                  StringEscapeUtils.escapeHtml4(thread.value.topic) + "</a></li>\n");
+                  thread.value.topic + "</a></li>\n");
           tlist = tlist.tail().get();
           thread = tlist.head().get();
           topiclist.append("<li><a href=\"" + prefix + "/" + handle + "/" + thread.identity +"\">" +
-                  StringEscapeUtils.escapeHtml4(thread.value.topic) + "</a></li>\n");
+                  thread.value.topic + "</a></li>\n");
       } catch (Maybe.NothingException e) { }
       out.println("<div class=\"blob\">\n"
-                + "  <a href=\"" + prefix + "/" + forum.value.handle + "/\"><h3 class=\"topic\">" + StringEscapeUtils.escapeHtml4(forum.value.name) + "</h3></a>\n"
+                + "  <a href=\"" + prefix + "/" + StringEscapeUtils.escapeHtml4(forum.value.handle) + "/\"><h3 class=\"topic\">" + StringEscapeUtils.escapeHtml4(forum.value.name) + "</h3></a>\n"
                 + "  <div class=\"text\"><ul>" + topiclist.toString() + "</ul></div>"
                 + "</div>");
   }
@@ -282,8 +287,7 @@ public class InforumServer extends AbstractHandler
         out.println("<html lang=\"en-GB\">");
         out.println("<head>");
         //Only allow content from this application.
-        out.println("    <meta name=\"viewport\" http-equiv=\"Content-Security-Policy\"\n" +
-                "          content=\"default-src 'self'; width=device-width, initial-scale=1.0, user-scalable=yes\">");
+        out.println("<meta name=\"viewport\" width=device-width initial-scale=1.0 user-scalable=yes\">");
         out.println("<style type=\"text/css\">code{white-space: pre;}</style>");
         out.println("<link rel=\"stylesheet\" href=\"/style.css\">");
   }
@@ -361,8 +365,8 @@ public class InforumServer extends AbstractHandler
         out.println("<header>");
         out.println("<h1 class=\"topic\">New thread</h1>");
         out.println("</header>");
-        out.println("<form class=\"login\" action=\"/forum/" + forum + "\" method=\"POST\">"
-                  + "<input type=\"hidden\" name=\"forum\" value=\"" + forum + "\">"
+        out.println("<form class=\"login\" action=\"/forum/" + StringEscapeUtils.escapeHtml4(forum) + "\" method=\"POST\">"
+                  + "<input type=\"hidden\" name=\"forum\" value=\"" + StringEscapeUtils.escapeHtml4(forum) + "\">"
                   + "<div class=\"name\"><input type=\"text\" name=\"topic\" placeholder=\"Topic\"></div>"
                   + "<textarea name=\"message\" placeholder=\"Message\" cols=50 rows=10></textarea>"
                 + "<input type=\"hidden\" name=\"token\" value=\"" + context.identity.toString() + "\">"
@@ -418,11 +422,12 @@ public class InforumServer extends AbstractHandler
    * Handle an HTTP request to a forum
    */
   private void handleForum(PrintWriter out,
-                     String path,
+                     String p,
                      HttpServletRequest request,
                      HttpServletResponse response,
                      Stored<Forum> forum,
                      Stored<UserContext> context) throws Maybe.NothingException {
+      String path = StringEscapeUtils.escapeHtml4(p);
        if (request.getMethod().equals("POST") && request.getParameter("newthread") != null
                && request.getParameter("token").equals(context.identity.toString())) {
           try {
@@ -496,10 +501,10 @@ public class InforumServer extends AbstractHandler
        printThread(out,path,thread,context);
   }
 
-  private void printForum(final PrintWriter out, final String path, final Stored<Forum> forum) {
+  private void printForum(final PrintWriter out, final String p, final Stored<Forum> forum) {
     printStandardHead(out);
     String name = StringEscapeUtils.escapeHtml4(forum.value.name);
-    String p = StringEscapeUtils.escapeHtml4(path);
+    String path = StringEscapeUtils.escapeHtml4(p);
     out.println("<title>Inforum – " + name + "</title>");
     out.println("</head>");
     out.println("<body>");
@@ -507,8 +512,8 @@ public class InforumServer extends AbstractHandler
     out.println("  <header class=\"forum-head\">");
     out.println("  <h2 class=\"topic\">" + name + "</h2>");
     out.println("  </header>");
-    out.println("<form class=\"action\" name=\"invite\" action=\"/forum/" + p + "\" method=\"POST\">"
-                  + "<a class=\"action\" href=\"/newthread?forum=" + p + "\">New thread</a>"
+    out.println("<form class=\"action\" name=\"invite\" action=\"/forum/" + path + "\" method=\"POST\">"
+                  + "<a class=\"action\" href=\"/newthread?forum=" + path + "\">New thread</a>"
                   + "<input style=\"margin-left: 3em;\" type=\"text\" name=\"user\" placeholder=\"Invite user\"><input type=\"submit\" name=\"invite\" value=\"Invite!\">"
                   + "<a style=\"margin-left: 3em;\" class=\"action\" href=\"/logout\">Logout</a>"
               + "</form>");
@@ -581,7 +586,6 @@ public class InforumServer extends AbstractHandler
       response.setContentType(contentType);
       try {
         final InputStream is = new FileInputStream(file);
-        // Shorter, if we can upgrade to JDK 1.9: is.transferTo(response.getOutputStream());
         final OutputStream os = response.getOutputStream();
         final byte[] buffer = new byte[1024];
         for(int len = is.read(buffer);
@@ -590,6 +594,7 @@ public class InforumServer extends AbstractHandler
            os.write(buffer, 0, len);
         }
         is.close();
+
         response.setStatus(HttpServletResponse.SC_OK);
       } catch (IOException e) {
         response.setStatus(HttpServletResponse.SC_NOT_FOUND);

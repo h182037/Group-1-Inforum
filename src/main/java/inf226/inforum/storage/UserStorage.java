@@ -170,57 +170,7 @@ public class UserStorage implements Storage<User,SQLException> {
        return false;
    }
 
-    public synchronized String renewPassword(UUID id) throws DeletedException,SQLException{
 
-        PreparedStatement stmt = connection.prepareStatement("SELECT version,name,imageURL,joined, password FROM User WHERE id = ?");
-        stmt.setString(1, id.toString());
-        final ResultSet rs = stmt.executeQuery();
 
-        if(rs.next()) {
 
-            final String password = rs.getString("password");
-
-            return password;
-        } else {
-            throw new DeletedException();
-        }
-    }
-
-    public boolean getUserAuth(String name) {
-        try {
-
-            PreparedStatement stmt = connection.prepareStatement("SELECT id FROM User WHERE name = ?");
-            stmt.setString(1,name);
-            final ResultSet rs = stmt.executeQuery();
-
-            if(rs.next()) {
-                final String dbName = rs.getString("id");
-                return true;
-
-            }
-        } catch (SQLException e) {
-            System.out.println("getuserAUTH" + e);
-            // Intensionally left blank
-        }
-        return false;
-
-    }
-    public synchronized boolean checkName(String name) throws DeletedException,SQLException{
-
-        PreparedStatement stmt = connection.prepareStatement("SELECT version,name,imageURL,joined, password FROM User WHERE name = ?");
-        stmt.setString(1, name.toString());
-        final ResultSet rs = stmt.executeQuery();
-        String nameFound = null;
-        if(rs.next()) {
-
-            nameFound = rs.getString("name");
-            if(nameFound != null) {
-                return true;
-            }
-
-        } else {
-            return false;
-        }
-    return false;
-    }
 }
