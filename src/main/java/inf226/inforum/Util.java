@@ -14,6 +14,7 @@ public class Util{
        catch (Maybe.NothingException e) { /* Intensionally left blank */ }
    }
 
+   //Task 0
     public static boolean checkString(String s) {
         boolean valid = true;
         for (int i = 0; i < s.length(); i++) {
@@ -31,6 +32,7 @@ public class Util{
     }
 
  //TASK 1 password constraints
+// TASK 0
 public static boolean checkPassword(String password) {
         boolean valid = true;
         if(password.length() < 8 || password.length() > 64) {

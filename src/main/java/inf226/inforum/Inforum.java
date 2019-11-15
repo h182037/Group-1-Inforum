@@ -79,7 +79,10 @@ public class Inforum implements Closeable
 
   /**
    *  Register a new user.
+   *  Task 0, Hashed the password.
    */
+
+
   public Maybe<Stored<UserContext>> registerUser(String username, String password) throws UnsupportedEncodingException, GeneralSecurityException  {
 
      String hashed = SCryptUtil.scrypt(password, 16384,8,1);
@@ -88,6 +91,7 @@ public class Inforum implements Closeable
       try {
 
        Stored<User> user = userStore.save(new User(username, "/img/user.svg",Instant.now(), hashed));
+
 
 
         return Maybe.just(contextStore.save(new UserContext(user)));

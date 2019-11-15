@@ -64,6 +64,8 @@ public class User {
         return password;
     }
 
+
+    //Task 0
     public boolean checkPassword(String password) throws DeletedException, UnsupportedEncodingException, GeneralSecurityException {
         boolean check = false;
 
@@ -85,19 +87,8 @@ public class User {
 
 
    }  return check;
-
    }
 
-
-
-    public boolean checkName(String name) throws SQLException, DeletedException {
-        UserStorage us;
-        us = new UserStorage();
-        boolean check = us.getUserAuth(name);
-
-        return true;
-
-    }
 
 
    @Override

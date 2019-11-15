@@ -1,6 +1,17 @@
 package inf226.inforum;
 
+
+import java.io.*;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
+import java.io.IOException;
+
+import com.lambdaworks.crypto.SCryptUtil;
+
 import inf226.inforum.storage.Stored;
+
 import org.apache.commons.text.StringEscapeUtils;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
@@ -14,13 +25,9 @@ import java.io.*;
 import java.security.GeneralSecurityException;
 import java.sql.SQLException;
 import java.time.Instant;
-
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.UUID;
-
-import inf226.inforum.storage.*;
-import org.eclipse.jetty.server.session.Session;
 
 
 
@@ -180,6 +187,8 @@ public class InforumServer extends AbstractHandler
 
   /**
    * Restore a session, login or register a user.
+   *
+   *
    */
   private Maybe<Stored<UserContext>> getSession(Map<String,Cookie> cookies, HttpServletRequest request) {
      final Maybe<Cookie> sessionCookie = new Maybe<Cookie>(cookies.get("session"));
@@ -614,8 +623,13 @@ public class InforumServer extends AbstractHandler
 
 
 
+
+
+
        Server server = new Server(8083);
+
        server.setHandler(new InforumServer());
+
    
        server.start();
        server.join();
@@ -624,4 +638,5 @@ public class InforumServer extends AbstractHandler
     }
     inforum.close();
   }
+
 }
