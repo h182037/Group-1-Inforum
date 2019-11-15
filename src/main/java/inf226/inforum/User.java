@@ -1,23 +1,13 @@
 package inf226.inforum;
 
-import com.lambdaworks.crypto.SCrypt;
-import com.lambdaworks.crypto.SCryptUtil;
-
-
 import inf226.inforum.storage.DeletedException;
-import inf226.inforum.storage.MessageStorage;
 import inf226.inforum.storage.UserStorage;
 
 import java.io.UnsupportedEncodingException;
-import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
-import java.security.MessageDigest;
-import java.security.SecureRandom;
-import java.sql.*;
-
-
-import java.io.Console;
 import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.time.Instant;
 
 public class User {
