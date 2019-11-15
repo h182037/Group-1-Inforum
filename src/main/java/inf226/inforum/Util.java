@@ -31,28 +31,6 @@ public class Util {
         return valid;
     }
 
-
-    public static boolean checkPassword(String password) {
-        boolean valid = true;
-        if(password.length() < 8 || password.length() > 64) {
-            valid = false;
-        }else{
-            for (int i = 0; i <password.length(); i++){
-                char c = password.charAt(i);
-
-                if(       ('a'  <= c && c <= 'z')
-                        || ('A' <= c && c <= 'Z')
-                        || ('0' <= c && c <= '9')){
-                    valid=true;
-                }else{
-                    valid=false;
-                }
-            }
-        }
-
-        return valid;
-    }
-
     public static<A,Q, E extends Exception> Stored<A> updateSingle(Stored<A> stored, Storage<A,E> storage, Function<Stored<A>,A> update) throws E, DeletedException{
       boolean updated = true;
       while(true) {

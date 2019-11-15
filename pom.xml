@@ -26,12 +26,6 @@
       <!-- https://mvnrepository.com/artifact/crypto-random/crypto-random -->
       <!-- https://mvnrepository.com/artifact/org.apache.commons/commons-rng-simple -->
 
-      <dependency>
-          <groupId>org.apache.commons</groupId>
-          <artifactId>commons-text</artifactId>
-          <version>1.8</version>
-      </dependency>
-
     <dependency>
         <groupId>org.junit.jupiter</groupId>
         <artifactId>junit-jupiter-api</artifactId>
@@ -43,6 +37,7 @@
         <artifactId>sqlite-jdbc</artifactId>
         <version>3.28.0</version>
     </dependency>
+
     <!-- https://mvnrepository.com/artifact/com.lambdaworks/scrypt -->
     <dependency>
         <groupId>com.lambdaworks</groupId>
