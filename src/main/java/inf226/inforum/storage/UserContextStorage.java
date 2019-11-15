@@ -181,13 +181,11 @@ public class UserContextStorage implements Storage<UserContext,SQLException> {
    public synchronized boolean invite(Stored<Forum> forum, Stored<User> user) {
      try {
 
-<<<<<<< HEAD
+
       PreparedStatement stmt = connection.prepareStatement("SELECT id FROM UserContext WHERE user =?");
       stmt.setString(1,user.identity.toString());
-=======
-      PreparedStatement stmt = connection.prepareStatement("SELECT id FROM UserContext WHERE user = ?");
-      stmt.setString(1, user.identity.toString());
->>>>>>> e8757eefd128c1348c3350da6b474ef36eb5c8d8
+
+
       ResultSet rs = stmt.executeQuery();
       if(rs.next()) {
 
