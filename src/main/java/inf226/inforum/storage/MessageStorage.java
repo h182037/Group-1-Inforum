@@ -1,16 +1,18 @@
 package inf226.inforum.storage;
 
-import java.sql.*;
+import inf226.inforum.Message;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.Instant;
 import java.util.UUID;
 
-import inf226.inforum.ImmutableList;
-import inf226.inforum.Message;
-import inf226.inforum.User;
-import inf226.inforum.UserContext;
-
 /**
  * TODO: Secure the following for SQL injection vulnerabilities.
+ *
+ * Every SQL  injection has been secured, with preferred statements
  */
 
 public class MessageStorage implements Storage<Message,SQLException> {
@@ -25,7 +27,7 @@ public class MessageStorage implements Storage<Message,SQLException> {
        connection.createStatement()
                  .executeUpdate("CREATE TABLE IF NOT EXISTS Message (id TEXT PRIMARY KEY, version TEXT, sender TEXT, message TEXT, date TEXT)");
    }
-
+    // Task 1, Preferred statement made
    @Override
    public Stored<Message> save(Message message) throws SQLException {
      final Stored<Message> stored = new Stored<Message>(message);
@@ -40,7 +42,7 @@ public class MessageStorage implements Storage<Message,SQLException> {
 
      return stored;
    }
-
+    // Task 1, Preferred statement made
    @Override
    public synchronized Stored<Message> update(Stored<Message> message, Message new_message) throws UpdatedException,DeletedException,SQLException {
      final Stored<Message> current = renew(message.identity);
@@ -60,7 +62,7 @@ public class MessageStorage implements Storage<Message,SQLException> {
      }
      return updated;
    }
-
+    // Task 1, Preferred statement made
    @Override
    public synchronized void delete(Stored<Message> message) throws UpdatedException,DeletedException,SQLException {
      final Stored<Message> current = renew(message.identity);
@@ -73,7 +75,7 @@ public class MessageStorage implements Storage<Message,SQLException> {
         throw new UpdatedException(current);
      }
    }
-
+    // Task 1, Preferred statement made
    @Override
    public synchronized Stored<Message> renew(UUID id) throws DeletedException,SQLException{
 

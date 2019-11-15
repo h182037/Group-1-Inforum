@@ -14,13 +14,9 @@ import java.io.*;
 import java.security.GeneralSecurityException;
 import java.sql.SQLException;
 import java.time.Instant;
-
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.UUID;
-
-import inf226.inforum.storage.*;
-import org.eclipse.jetty.server.session.Session;
 
 
 
@@ -179,6 +175,8 @@ public class InforumServer extends AbstractHandler
 
   /**
    * Restore a session, login or register a user.
+   *
+   *
    */
   private Maybe<Stored<UserContext>> getSession(Map<String,Cookie> cookies, HttpServletRequest request) {
      final Maybe<Cookie> sessionCookie = new Maybe<Cookie>(cookies.get("session"));

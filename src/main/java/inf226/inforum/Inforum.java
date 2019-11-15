@@ -79,6 +79,7 @@ public class Inforum implements Closeable
 
   /**
    *  Register a new user.
+   *  Task 0, Hashed the password.
    */
   public Maybe<Stored<UserContext>> registerUser(String username, String password) throws UnsupportedEncodingException, GeneralSecurityException  {
 

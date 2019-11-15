@@ -11,6 +11,8 @@ import java.util.UUID;
 
 /**
  * TODO: Secure the following for SQL injection vulnerabilities.
+ *
+ * Every SQL  injection has been secured, with preferred statements
  */
 
 public class ForumStorage implements Storage<Forum,SQLException> {
@@ -33,14 +35,9 @@ public class ForumStorage implements Storage<Forum,SQLException> {
                  .executeUpdate("CREATE TABLE IF NOT EXISTS SubForum (forum TEXT, subforum TEXT, ordinal INTEGER, PRIMARY KEY(forum, subforum), FOREIGN KEY(subforum) REFERENCES Forum(id) ON DELETE CASCADE, FOREIGN KEY(forum) REFERENCES Forum(id) ON DELETE CASCADE)");
    }
 
+    // Task 1, Preferred statement made
    @Override
    public synchronized Stored<Forum> renew(UUID id) throws DeletedException,SQLException {
-
-      //final String threadsql = "SELECT thread,ordinal FROM ForumThread WHERE forum = '" + id.toString() + "' ORDER BY ordinal DESC";
-      //final String subforumsql = "SELECT subforum,ordinal FROM SubForum WHERE forum = '" + id.toString() + "' ORDER BY ordinal DESC";
-
-
-
 
        PreparedStatement stmt = connection.prepareStatement("SELECT version,handle,name FROM Forum WHERE id = ? ");
        stmt.setString(1,id.toString());
@@ -50,8 +47,6 @@ public class ForumStorage implements Storage<Forum,SQLException> {
 
        PreparedStatement stmt3 = connection.prepareStatement("SELECT subforum,ordinal FROM SubForum WHERE forum = ? ORDER BY ordinal DESC");
        stmt3.setString(1,id.toString());
-
-
 
         final ResultSet forumResult = stmt.executeQuery();
 
@@ -79,7 +74,7 @@ public class ForumStorage implements Storage<Forum,SQLException> {
           throw new DeletedException();
       }
    }
-
+    // Task 1, Preferred statement made
    @Override
    public synchronized Stored<Forum> save(Forum forum) throws SQLException {
      final Stored<Forum> stored = new Stored<Forum>(forum);
@@ -130,7 +125,7 @@ public class ForumStorage implements Storage<Forum,SQLException> {
 
      return stored;
    }
-
+    // Task 1, Preferred statement made
    @Override
    public synchronized Stored<Forum> update(Stored<Forum> forum, Forum new_forum) throws UpdatedException,DeletedException,SQLException {
      final Stored<Forum> current = renew(forum.identity);
@@ -183,7 +178,7 @@ public class ForumStorage implements Storage<Forum,SQLException> {
      }
      return updated;
    }
-
+    // Task 1, Preferred statement made
    @Override
    public synchronized void delete(Stored<Forum> forum) throws UpdatedException,DeletedException,SQLException {
      final Stored<Forum> current = renew(forum.identity);

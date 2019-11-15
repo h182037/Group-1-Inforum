@@ -7,6 +7,8 @@ import java.util.UUID;
 
 /**
  * TODO: Secure the following for SQL injection vulnerabilities.
+ *
+ * Every SQL  injection has been secured, with preferred statements
  */
 
 public class UserContextStorage implements Storage<UserContext,SQLException> {
@@ -30,7 +32,7 @@ public class UserContextStorage implements Storage<UserContext,SQLException> {
        connection.createStatement()
                  .executeUpdate("CREATE TABLE IF NOT EXISTS UserContextForum (context TEXT, forum TEXT, ordinal INTEGER, PRIMARY KEY(context, forum), FOREIGN KEY(forum) REFERENCES Forum(id) ON DELETE CASCADE, FOREIGN KEY(context) REFERENCES UserContext(id) ON DELETE CASCADE)");
    }
-
+    // Task 1, Preferred statement made
     @Override
     public synchronized Stored<UserContext> renew(UUID id) throws DeletedException,SQLException {
 
@@ -60,7 +62,7 @@ public class UserContextStorage implements Storage<UserContext,SQLException> {
         }
     }
 
-
+    // Task 1, Preferred statement made
    @Override
    public synchronized Stored<UserContext> save(UserContext context) throws SQLException {
      final Stored<UserContext> stored = new Stored<UserContext>(context);
@@ -96,7 +98,7 @@ public class UserContextStorage implements Storage<UserContext,SQLException> {
          
      return stored;
    }
-
+    // Task 1, Preferred statement made
    @Override
    public synchronized Stored<UserContext> update(Stored<UserContext> context, UserContext new_context) throws UpdatedException,DeletedException,SQLException {
      final Stored<UserContext> current = renew(context.identity);
@@ -134,7 +136,7 @@ public class UserContextStorage implements Storage<UserContext,SQLException> {
      }
      return updated;
    }
-
+    // Task 1, Preferred statement made
    @Override
    public synchronized void delete(Stored<UserContext> context) throws UpdatedException,DeletedException,SQLException {
      final Stored<UserContext> current = renew(context.identity);
@@ -153,7 +155,7 @@ public class UserContextStorage implements Storage<UserContext,SQLException> {
         throw new UpdatedException(current);
      }
    }
-
+    // Task 1, Preferred statement made
    public synchronized Maybe<Stored<UserContext>> getUserContext(Stored<User> user, String password) {
       try {
       if (user.value.checkPassword(password)) {
@@ -177,6 +179,7 @@ public class UserContextStorage implements Storage<UserContext,SQLException> {
 
    /**
     *  Invite another user to the forum.
+    *  // Task 1, Preferred statement made
     */
    public synchronized boolean invite(Stored<Forum> forum, Stored<User> user) {
      try {
