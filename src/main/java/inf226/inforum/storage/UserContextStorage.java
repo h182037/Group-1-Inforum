@@ -1,15 +1,9 @@
 package inf226.inforum.storage;
 
+import inf226.inforum.*;
+
 import java.sql.*;
 import java.util.UUID;
-
-import inf226.inforum.Forum;
-import inf226.inforum.ImmutableList;
-import inf226.inforum.Maybe;
-import inf226.inforum.Mutable;
-import inf226.inforum.User;
-import inf226.inforum.UserContext;
-import inf226.inforum.Util;
 
 /**
  * TODO: Secure the following for SQL injection vulnerabilities.
@@ -39,14 +33,17 @@ public class UserContextStorage implements Storage<UserContext,SQLException> {
 
     @Override
     public synchronized Stored<UserContext> renew(UUID id) throws DeletedException,SQLException {
-        final String contextsql = "SELECT version,user FROM UserContext WHERE id = '" + id.toString() + "'";
-        final String forumsql = "SELECT forum,ordinal FROM UserContextForum WHERE context = '" + id.toString() + "' ORDER BY ordinal DESC";
 
-        final Statement contextStatement = connection.createStatement();
-        final Statement forumStatement = connection.createStatement();
 
-        final ResultSet contextResult = contextStatement.executeQuery(contextsql);
-        final ResultSet forumResult = forumStatement.executeQuery(forumsql);
+        PreparedStatement contextStmt = connection.prepareStatement("SELECT version, user FROM UserContext WHERE id = ?");
+        contextStmt.setString(1,id.toString());
+
+        PreparedStatement forumStmt = connection.prepareStatement("SELECT forum,ordinal FROM UserContextForum WHERE context = ? ORDER BY ordinal DESC");
+        forumStmt.setString(1, id.toString());
+
+        final ResultSet contextResult = contextStmt.executeQuery();
+        final ResultSet forumResult = forumStmt.executeQuery();
+
 
         if(contextResult.next()) {
             final UUID version = UUID.fromString(contextResult.getString("version"));
@@ -142,9 +139,7 @@ public class UserContextStorage implements Storage<UserContext,SQLException> {
    public synchronized void delete(Stored<UserContext> context) throws UpdatedException,DeletedException,SQLException {
      final Stored<UserContext> current = renew(context.identity);
      if(current.version.equals(context.version)) {
-        connection.createStatement().executeUpdate("DELETE FROM UserContextForum WHERE context='" + context.identity + "'");
-        String sql =  "DELETE FROM UserContext WHERE id ='" + context.identity + "'";
-        connection.createStatement().executeUpdate(sql);
+
 
          PreparedStatement stmt = connection.prepareStatement("DELETE FROM UserContextForum WHERE context=?");
          stmt.setString(1,context.identity.toString());
@@ -187,6 +182,7 @@ public class UserContextStorage implements Storage<UserContext,SQLException> {
      try {
 
       PreparedStatement stmt = connection.prepareStatement("SELECT id FROM UserContext WHERE user =?");
+      stmt.setString(1,user.identity.toString());
       ResultSet rs = stmt.executeQuery();
       if(rs.next()) {
 
@@ -198,7 +194,7 @@ public class UserContextStorage implements Storage<UserContext,SQLException> {
 
 
         return true;
-        
+
       }
       System.out.println("No user in DB:" + "SQL");
     } catch (SQLException e) {System.err.println("UsercntextStorage" + e);}

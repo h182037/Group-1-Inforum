@@ -32,7 +32,7 @@ public class UserStorage implements Storage<User,SQLException> {
     public synchronized  void initialise() throws SQLException {
       connection.createStatement()
                 .executeUpdate("CREATE TABLE IF NOT EXISTS User (id TEXT PRIMARY KEY, version TEXT, name TEXT, password TEXT, imageURL TEXT, joined TEXT, UNIQUE(name))");
-         //  connection.createStatement().executeUpdate("ALTER TABLE User ALTER COLUMN password TEXT");
+
 
 
 
@@ -44,8 +44,6 @@ public class UserStorage implements Storage<User,SQLException> {
    public Stored<User> save(User user) throws SQLException {
      final Stored<User> stored = new Stored<User>(user);
 
-     // connection.createStatement().executeUpdate("ALTER TABLE User add COLUMN password TEXT");
-       //connection.createStatement().executeUpdate("ALTER TABLE User drop COLUMN password");
     PreparedStatement stmt = connection.prepareStatement("INSERT INTO User VALUES(?,?,?,?,?,?)");
     stmt.setString(1, stored.identity.toString());
     stmt.setString(2, stored.version.toString());
