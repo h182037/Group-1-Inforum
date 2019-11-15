@@ -1,21 +1,20 @@
 package inf226.inforum;
 
 
-import java.util.UUID;
+import com.lambdaworks.crypto.SCryptUtil;
+import inf226.inforum.storage.*;
+import org.apache.commons.text.StringEscapeUtils;
 
 import java.io.Closeable;
 import java.io.IOException;
-
-import java.sql.DriverManager;
+import java.io.UnsupportedEncodingException;
+import java.security.GeneralSecurityException;
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.SQLException;
-
 import java.time.Instant;
+import java.util.UUID;
 
-import com.lambdaworks.crypto.SCryptUtil;
-import inf226.inforum.storage.*;
-import inf226.inforum.storage.DeletedException;
-import org.apache.commons.text.StringEscapeUtils;
 
 
 /**
@@ -81,17 +80,22 @@ public class Inforum implements Closeable
   /**
    *  Register a new user.
    */
-  public Maybe<Stored<UserContext>> registerUser(String username, String password) {
+  public Maybe<Stored<UserContext>> registerUser(String username, String password) throws UnsupportedEncodingException, GeneralSecurityException  {
 
-     try {
-         String hashed = SCryptUtil.scrypt(password,16384,8,1);
-         SCryptUtil.check(password, hashed);
-        Stored<User> user = userStore.save(new User(username, hashed,"/img/user.svg",Instant.now()));
+     String hashed = SCryptUtil.scrypt(password, 16384,8,1);
+
+
+      try {
+
+       Stored<User> user = userStore.save(new User(username, "/img/user.svg",Instant.now(), hashed));
+
+
+
         return Maybe.just(contextStore.save(new UserContext(user)));
 
      } catch (SQLException e) {
          // Mostlikely the username is not unique
-         System.err.println(e);
+         System.err.println("Register user in inforum: " + e);
      }
      return Maybe.nothing();
   }
@@ -108,7 +112,7 @@ public class Inforum implements Closeable
             con -> con.value.addForum(forum));
          return Maybe.just(forum);
      } catch (SQLException e) {
-         System.err.println(e);
+         System.err.println("CREATEFORUM " +e);
      } catch (DeletedException e) {
          System.err.println(e);
      }
@@ -126,7 +130,7 @@ public class Inforum implements Closeable
          System.err.println("Session token expried:" + id);
      } catch (SQLException e) {
          // Retrieving session from storage failed
-         System.err.println(e);
+         System.err.println("inforum restore" + e);
      } 
     return Maybe.nothing();
   }

@@ -1,5 +1,6 @@
 package inf226.inforum;
 
+
 import java.io.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -8,19 +9,30 @@ import javax.servlet.http.Cookie;
 import java.io.IOException;
 
 import com.lambdaworks.crypto.SCryptUtil;
+
+import inf226.inforum.storage.Stored;
+
 import org.apache.commons.text.StringEscapeUtils;
-import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.Request;
+import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.AbstractHandler;
-import java.util.TreeMap;
-import java.util.Map;
-import java.util.UUID;
-import java.lang.IllegalArgumentException;
-import java.sql.DriverManager;
-import java.sql.Connection;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.*;
+import java.security.GeneralSecurityException;
 import java.sql.SQLException;
 import java.time.Instant;
+
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.UUID;
+
 import inf226.inforum.storage.*;
+import org.eclipse.jetty.server.session.Session;
+
 
 
 /**
@@ -70,13 +82,10 @@ public class InforumServer extends AbstractHandler
 
     System.err.println("Creating session.");
     final Maybe<Stored<UserContext>> session = getSession(cookies, request);
-
     // Pages which require login
-
     try {
         Stored<UserContext> con = session.get();
         System.err.println("Logged in as user: " + con.value.user.value.name);
-
         //Set HttpOnly flag to true
         Cookie cookie = new Cookie("session",con.identity.toString());
         cookie.setHttpOnly(true);
@@ -84,7 +93,8 @@ public class InforumServer extends AbstractHandler
 
         // Handle actions
         if (request.getMethod().equals("POST")) {
-           if (request.getParameter("newforum") != null) {
+           if (request.getParameter("newforum") != null
+                   && request.getParameter("token").equals(con.identity.toString())) {
                System.err.println("Crating a new forum.");
                Maybe<Stored<Forum>> forum 
                   = inforum.createForum((new Maybe<String> (request.getParameter("name"))).get(), con);
@@ -94,7 +104,6 @@ public class InforumServer extends AbstractHandler
                return ;
            }
            if (request.getParameter("edit") != null) {
-               
                displayEditMessageForm(response.getWriter(),target,(new Maybe<String> (request.getParameter("content"))).get(), (Maybe.just(request.getParameter("message"))).get());
                response.setStatus(HttpServletResponse.SC_OK);
                baseRequest.setHandled(true);
@@ -163,7 +172,7 @@ public class InforumServer extends AbstractHandler
                forum -> { try {
                              System.err.println("Printing forum.");
                              handleForum(response.getWriter(),object,request,response,forum, context);
-                           } catch (IOException e) { }  // TODO: Display forum
+                           } catch (IOException | Maybe.NothingException e) { }  // TODO: Display forum
                          },
                thread -> { try {
                              handleThread(response.getWriter(),object,request,response, thread, context);
@@ -198,11 +207,17 @@ public class InforumServer extends AbstractHandler
                String password = (new Maybe<String> (request.getParameter("password"))).get();
                String password_repeat = (new Maybe<String> (request.getParameter("password_repeat"))).get();
                // TODO: Validate username. Check that passwords are valid and match
+
                  if(Util.checkString(username) && Util.checkString(password) && password.equals(password_repeat)){
                      return inforum.registerUser(username,password);
                  }
+
              } catch (Maybe.NothingException e) {
                System.err.println("Broken usage of register");
+             } catch (UnsupportedEncodingException e) {
+                 e.printStackTrace();
+             } catch (GeneralSecurityException e) {
+                 e.printStackTrace();
              }
          }
 
@@ -266,7 +281,9 @@ public class InforumServer extends AbstractHandler
         out.println("<!DOCTYPE html>");
         out.println("<html lang=\"en-GB\">");
         out.println("<head>");
-        out.println("<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0, user-scalable=yes\">");
+        //Only allow content from this application.
+        out.println("    <meta name=\"viewport\" http-equiv=\"Content-Security-Policy\"\n" +
+                "          content=\"default-src 'self'; width=device-width, initial-scale=1.0, user-scalable=yes\">");
         out.println("<style type=\"text/css\">code{white-space: pre;}</style>");
         out.println("<link rel=\"stylesheet\" href=\"/style.css\">");
   }
@@ -328,7 +345,8 @@ public class InforumServer extends AbstractHandler
         out.println("</header>");
         out.println("<form class=\"login\" action=\"/\" method=\"POST\">"
                   + "<div class=\"name\"><input type=\"text\" name=\"name\" placeholder=\"Forum name\"></div>"
-                  + "<div class=\"submit\"><input type=\"submit\" name=\"newforum\" value=\"Create forum\"></div>"
+                + "<input type=\"hidden\" name=\"token\" value=\"" + context.identity.toString() + "\">"
+                + "<div class=\"submit\"><input type=\"submit\" name=\"newforum\" value=\"Create forum\"></div>"
                   + "</form>");
         out.println("</section>");
         out.println("</body>");
@@ -347,6 +365,7 @@ public class InforumServer extends AbstractHandler
                   + "<input type=\"hidden\" name=\"forum\" value=\"" + forum + "\">"
                   + "<div class=\"name\"><input type=\"text\" name=\"topic\" placeholder=\"Topic\"></div>"
                   + "<textarea name=\"message\" placeholder=\"Message\" cols=50 rows=10></textarea>"
+                + "<input type=\"hidden\" name=\"token\" value=\"" + context.identity.toString() + "\">"
                   + "<div class=\"submit\"><input type=\"submit\" name=\"newthread\" value=\"Post\"></div>"
                   + "</form>");
         out.println("</section>");
@@ -403,8 +422,9 @@ public class InforumServer extends AbstractHandler
                      HttpServletRequest request,
                      HttpServletResponse response,
                      Stored<Forum> forum,
-                     Stored<UserContext> context) {
-       if (request.getMethod().equals("POST") && request.getParameter("newthread") != null) {
+                     Stored<UserContext> context) throws Maybe.NothingException {
+       if (request.getMethod().equals("POST") && request.getParameter("newthread") != null
+               && request.getParameter("token").equals(context.identity.toString())) {
           try {
                System.err.println("Crating a new thread.");
                String topic = (new Maybe<String> (request.getParameter("topic"))).get();
@@ -583,7 +603,14 @@ public class InforumServer extends AbstractHandler
   {
     try{
        inforum = new Inforum("production.db");
-       Server server = new Server(8081);
+
+
+
+
+
+
+       Server server = new Server(8083);
+
        server.setHandler(new InforumServer());
 
    
