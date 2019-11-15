@@ -1,15 +1,14 @@
 package inf226.inforum;
-import inf226.inforum.Maybe;
-import java.lang.Throwable;
-import inf226.inforum.storage.Stored;
-import inf226.inforum.storage.Storage;
 import inf226.inforum.storage.DeletedException;
+import inf226.inforum.storage.Storage;
+import inf226.inforum.storage.Stored;
 import inf226.inforum.storage.UpdatedException;
 
 import java.util.function.Function;
 
 
-public class Util {
+public class Util{
+
    public static<E extends Throwable> void throwMaybe(Maybe<E> exception) throws E {
        try { throw exception.get(); }
        catch (Maybe.NothingException e) { /* Intensionally left blank */ }

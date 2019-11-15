@@ -1,31 +1,102 @@
 package inf226.inforum;
 
-import com.lambdaworks.crypto.SCryptUtil;
+import inf226.inforum.storage.DeletedException;
+import inf226.inforum.storage.UserStorage;
 
-import java.io.Console;
+import java.io.UnsupportedEncodingException;
+import java.security.GeneralSecurityException;
 import java.sql.Connection;
-import java.sql.PreparedStatement;
+import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.time.Instant;
 
 public class User {
-   public final String name;
-    public final String password;
-   public final String imageURL;
-   public final Instant joined;
 
 
+    public void setName(String name) {
+        this.name = name;
+    }
 
-   public User(String name, String password, String imageURL, Instant joined) {
+    public void setImageURL(String imageURL) {
+        this.imageURL = imageURL;
+    }
+
+    public void setJoined(Instant joined) {
+        this.joined = joined;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String name;
+     public String imageURL;
+   public Instant joined;
+    public String password;
+
+
+   public User(String name, String imageURL,Instant joined, String password ) {
      this.name = name;
-       this.password = password;
      this.imageURL = imageURL;
      this.joined = joined;
+       this.password = password;
+   }
+    public User() {
+       this.password ="";
+       this.name = "";
+       this.joined = Instant.now();
+       this.imageURL = "";
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getImageURL() {
+        return imageURL;
+    }
+
+    public Instant getJoined() {
+        return joined;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public boolean checkPassword(String password) throws DeletedException, UnsupportedEncodingException, GeneralSecurityException {
+        boolean check = false;
+
+
+        try {
+            final String dburl = "jdbc:sqlite:" + "production.db";
+           Connection connection = DriverManager.getConnection(dburl);
+            connection.createStatement().executeUpdate("PRAGMA foreign_keys = ON");
+
+            UserStorage userStore = new UserStorage(connection);
+            userStore.initialise();
+
+
+            check = userStore.checkPasswordWithDB(password, getName());
+
+
+        } catch (SQLException e) {
+            System.err.println("Check password"+ e);
+
+
+   }  return check;
 
    }
 
-    public static boolean checkPassword(String password) {
+
+
+    public boolean checkName(String name) throws SQLException, DeletedException {
+        UserStorage us;
+        us = new UserStorage();
+        boolean check = us.getUserAuth(name);
+
         return true;
+
     }
 
 

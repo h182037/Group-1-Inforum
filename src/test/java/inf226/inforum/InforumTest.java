@@ -6,6 +6,7 @@ import inf226.inforum.storage.Stored;
 import java.sql.SQLException;
 
 public class InforumTest{
+    /*
     @Test
     void deleteForumMessage() throws Maybe.NothingException,SQLException {
        Inforum inforum = new Inforum(":memory:");
@@ -15,5 +16,5 @@ public class InforumTest{
        Stored<Message> message = inforum.postMessage(thread, "Hello !", context).get();
        inforum.deleteMessage(message.identity, context);
        thread = inforum.refreshThread(thread).get();
-    }
+    }*/
 }

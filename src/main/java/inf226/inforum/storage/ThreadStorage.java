@@ -1,17 +1,10 @@
 package inf226.inforum.storage;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.UUID;
-
-import inf226.inforum.ImmutableList;
-import inf226.inforum.Maybe;
-import inf226.inforum.Message;
-import inf226.inforum.Mutable;
 import inf226.inforum.Thread;
-import inf226.inforum.Util;
+import inf226.inforum.*;
+
+import java.sql.*;
+import java.util.UUID;
 
 /**
  * TODO: Secure the following for SQL injection vulnerabilities.
@@ -23,8 +16,8 @@ public class ThreadStorage implements Storage<Thread,SQLException> {
 
     public ThreadStorage(Storage<Message,SQLException> messageStore, Connection connection) throws SQLException {
       this.messageStore = messageStore;
-      
-      this.connection = connection; 
+
+      this.connection = connection;
     }
 
 
@@ -37,14 +30,22 @@ public class ThreadStorage implements Storage<Thread,SQLException> {
 
    @Override
    public synchronized Stored<Thread> renew(UUID id) throws DeletedException,SQLException {
-      final String threadsql = "SELECT version,topic FROM Thread WHERE id = '" + id.toString() + "'";
-      final String messagesql = "SELECT message,ordinal FROM ThreadMessage WHERE thread = '" + id.toString() + "' ORDER BY ordinal DESC";
+
 
       final Statement threadStatement = connection.createStatement();
       final Statement messageStatement = connection.createStatement();
 
-      final ResultSet threadResult = threadStatement.executeQuery(threadsql);
-      final ResultSet messageResult = messageStatement.executeQuery(messagesql);
+      PreparedStatement stmt = connection.prepareStatement("SELECT version,topic FROM Thread WHERE id = ?");
+      stmt.setString(1, id.toString());
+      final ResultSet threadResult = stmt.executeQuery();
+
+      PreparedStatement stmt2 = connection.prepareStatement("SELECT message,ordinal FROM ThreadMessage WHERE thread = ? ORDER BY ordinal DESC");
+      stmt2.setString(1,id.toString());
+      final ResultSet messageResult = stmt2.executeQuery();
+
+
+
+
 
       if(threadResult.next()) {
           final UUID version = UUID.fromString(threadResult.getString("version"));
@@ -64,23 +65,31 @@ public class ThreadStorage implements Storage<Thread,SQLException> {
    @Override
    public synchronized Stored<Thread> save(Thread thread) throws SQLException {
      final Stored<Thread> stored = new Stored<Thread>(thread);
-     final String sql =  "INSERT INTO Thread VALUES('" + stored.identity + "','"
-                                                       + stored.version  + "','"
-                                                       + thread.topic  + "')";
-     connection.createStatement().executeUpdate(sql);
+
+       PreparedStatement stmt = connection.prepareStatement("INSERT INTO Thread VALUES(?,?,?)");
+       stmt.setString(1,stored.identity.toString());
+       stmt.setString(2,stored.version.toString());
+       stmt.setString(3,thread.topic);
+       stmt.executeUpdate();
+
      final Maybe.Builder<SQLException> exception = Maybe.builder();
      final Mutable<Integer> ordinal = new Mutable<Integer>(0);
      thread.messages.forEach(message -> {
-        final String msql = "INSERT INTO ThreadMessage VALUES('" + stored.identity + "','"
-                                                                 + message.identity + "','"
-                                                                 + ordinal.get().toString() + "')";
-        try { connection.createStatement().executeUpdate(msql); }
+
+        try {
+            PreparedStatement stmt2 = connection.prepareStatement("INSERT INTO ThreadMessage VALUES(?,?,?)");
+            stmt.setString(1,stored.identity.toString());
+            stmt.setString(2,message.identity.toString());
+            stmt.setString(3,ordinal.get().toString());
+            stmt.executeUpdate();
+
+        }
         catch (SQLException e) { exception.accept(e) ; }
         ordinal.accept(ordinal.get() + 1);
       });
 
      Util.throwMaybe(exception.getMaybe());
-         
+
      return stored;
    }
 
@@ -89,19 +98,26 @@ public class ThreadStorage implements Storage<Thread,SQLException> {
      final Stored<Thread> current = renew(thread.identity);
      final Stored<Thread> updated = current.newVersion(new_thread);
      if(current.version.equals(thread.version)) {
-        String sql =  "UPDATE Thread SET (version,topic)=('"
-                                                     + updated.version  + "','"
-                                                     + new_thread.topic + "') WHERE id='" + updated.identity + "'";
-        connection.createStatement().executeUpdate(sql);
-        connection.createStatement().executeUpdate("DELETE FROM ThreadMessage WHERE thread='" + thread.identity + "'");
-        
+
+         PreparedStatement stmt = connection.prepareStatement("UPDATE Thread SET (version,topic)=(?,?) WHERE id= ?");
+         stmt.setString(1,updated.version.toString());
+         stmt.setString(2,new_thread.topic);
+         stmt.setString(3,updated.identity.toString());
+         stmt.executeUpdate();
+
+
         final Maybe.Builder<SQLException> exception = Maybe.builder();
         final Mutable<Integer> ordinal = new Mutable<Integer>(0);
         new_thread.messages.forEach(message -> {
-           final String msql = "INSERT INTO ThreadMessage VALUES('" + updated.identity + "','"
-                                                                    + message.identity + "','"
-                                                                    + ordinal.get().toString() + "')";
-           try {connection.createStatement().executeUpdate(msql);}
+
+           try {
+               PreparedStatement stmt2 = connection.prepareStatement("INSERT INTO ThreadMessage VALUES(?,?,?)");
+
+               stmt2.setString(1,updated.identity.toString());
+               stmt2.setString(2,message.identity.toString());
+               stmt2.setString(3,ordinal.get().toString());
+               stmt2.executeUpdate();
+           }
            catch (SQLException e) { exception.accept(e);}
            ordinal.accept(ordinal.get() + 1);
          });
@@ -116,9 +132,14 @@ public class ThreadStorage implements Storage<Thread,SQLException> {
    public synchronized void delete(Stored<Thread> thread) throws UpdatedException,DeletedException,SQLException {
      final Stored<Thread> current = renew(thread.identity);
      if(current.version.equals(thread.version)) {
-        connection.createStatement().executeUpdate("DELETE FROM ThreadMessage WHERE thread='" + thread.identity + "'");
-        String sql =  "DELETE FROM Thread WHERE id ='" + thread.identity + "'";
-        connection.createStatement().executeUpdate(sql);
+
+        PreparedStatement stmt = connection.prepareStatement("DELETE FROM ThreadMessage WHERE thread=?");
+        stmt.setString(1,thread.identity.toString());
+        stmt.executeUpdate();
+         PreparedStatement stmt2 = connection.prepareStatement("DELETE FROM Thread WHERE id =?");
+         stmt2.setString(1,thread.identity.toString());
+         stmt2.executeUpdate();
+
      } else {
         throw new UpdatedException(current);
      }
