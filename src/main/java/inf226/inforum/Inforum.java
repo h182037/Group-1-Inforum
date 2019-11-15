@@ -83,9 +83,9 @@ public class Inforum implements Closeable
    */
   public Maybe<Stored<UserContext>> registerUser(String username, String password) {
 
-     String hashed = SCryptUtil.scrypt(password,16384,8,1);
-      SCryptUtil.check(password, hashed);
      try {
+         String hashed = SCryptUtil.scrypt(password,16384,8,1);
+         SCryptUtil.check(password, hashed);
         Stored<User> user = userStore.save(new User(username, hashed,"/img/user.svg",Instant.now()));
         return Maybe.just(contextStore.save(new UserContext(user)));
 

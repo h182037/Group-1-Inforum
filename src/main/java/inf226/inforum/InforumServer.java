@@ -6,6 +6,8 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
 import java.io.IOException;
+
+import com.lambdaworks.crypto.SCryptUtil;
 import org.apache.commons.text.StringEscapeUtils;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.Request;
@@ -581,8 +583,9 @@ public class InforumServer extends AbstractHandler
   {
     try{
        inforum = new Inforum("production.db");
-       Server server = new Server(8080);
+       Server server = new Server(8081);
        server.setHandler(new InforumServer());
+
    
        server.start();
        server.join();
@@ -591,4 +594,5 @@ public class InforumServer extends AbstractHandler
     }
     inforum.close();
   }
+
 }
