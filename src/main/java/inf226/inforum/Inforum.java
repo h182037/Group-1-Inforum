@@ -142,6 +142,7 @@ public class Inforum implements Closeable
         // We fill out some values automatically.
         Stored<Message> m 
             = messageStore.save(new Message(context.value.user.value.name,
+                //TASK 2, probably unneccessary escaping
                 StringEscapeUtils.escapeHtml4(message),
                                             Instant.now()));
         Util.updateSingle(thread, threadStore,
@@ -194,6 +195,7 @@ public class Inforum implements Closeable
   /**
    *   Delete a message.
    */
+  //TASK 4 fetching user and message.sender to check whether the user owns the message before deleting
   public void deleteMessage(UUID message, Stored<UserContext> context) {
      try {
         Stored<User> user = userStore.renew(context.value.user.identity);
@@ -206,7 +208,7 @@ public class Inforum implements Closeable
         System.err.println(e);
      }
   }
-
+    //This could also be available only for the forum owner, but we prefer that everyone with access can invite friends.
   public boolean invite(Stored<UserContext> context, String username, Stored<Forum> forum) {
       try {
          Stored<User> user = userStore.getUser(username).get();
@@ -216,7 +218,7 @@ public class Inforum implements Closeable
          return false;
       }
   }
-
+    //TASK 4 checking whether the user who wants to edit a message owns it. Else it is not allowed.
   public void editMessage(UUID message, String content, Stored<UserContext> context) {
       try {
          String con = StringEscapeUtils.escapeHtml4(content);

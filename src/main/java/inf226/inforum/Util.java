@@ -30,7 +30,7 @@ public class Util{
         return valid;
     }
 
-
+ //TASK 1 password constraints
 public static boolean checkPassword(String password) {
         boolean valid = true;
         if(password.length() < 8 || password.length() > 64) {

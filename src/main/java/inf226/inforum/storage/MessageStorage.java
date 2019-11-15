@@ -63,7 +63,7 @@ public class MessageStorage implements Storage<Message,SQLException> {
 
    @Override
    public synchronized void delete(Stored<Message> message) throws UpdatedException,DeletedException,SQLException {
-     final Stored<Message> current = renew(message.identity);
+        final Stored<Message> current = renew(message.identity);
      if(current.version.equals(message.version)) {
          PreparedStatement stmt = connection.prepareStatement("DELETE FROM Message WHERE id =?");
          stmt.setString(1,message.identity.toString());

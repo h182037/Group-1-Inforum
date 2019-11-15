@@ -54,7 +54,7 @@ public class InforumServer extends AbstractHandler
 
 
     // Pages which do not require login
-
+      // TASK 2 TASK 3 TASK ω adding some header options to further protect response/request handling
       response.addHeader("X-FRAME-OPTIONS", "DENY");
       response.addHeader("X-XSS-Protection", "1");
       response.addHeader("mode", "block");
@@ -80,12 +80,13 @@ public class InforumServer extends AbstractHandler
     try {
         Stored<UserContext> con = session.get();
         System.err.println("Logged in as user: " + con.value.user.value.name);
-        //Set HttpOnly flag to true
+        //TASK 2 Set HttpOnly flag to true
         Cookie cookie = new Cookie("session",con.identity.toString());
         cookie.setHttpOnly(true);
         response.addCookie(cookie);
 
         // Handle actions
+        //TASK 3 checking csrf token to allow newforum POST,we solved this with a rather gullible approach using the session cookie as csrf token
         if (request.getMethod().equals("POST")) {
            if (request.getParameter("newforum") != null
                    && request.getParameter("token").equals(con.identity.toString())) {
@@ -201,7 +202,7 @@ public class InforumServer extends AbstractHandler
                String password = (new Maybe<String> (request.getParameter("password"))).get();
                String password_repeat = (new Maybe<String> (request.getParameter("password_repeat"))).get();
                // TODO: Validate username. Check that passwords are valid and match
-
+                // TASK 0 Password and username constraints
                  if(Util.checkString(username) && Util.checkPassword(password) && password.equals(password_repeat)){
                      return inforum.registerUser(username,password);
                  }
@@ -252,6 +253,7 @@ public class InforumServer extends AbstractHandler
           topiclist.append("<li><a href=\"" + prefix + "/" + handle + "/" + thread.identity +"\">" +
                   thread.value.topic + "</a></li>\n");
       } catch (Maybe.NothingException e) { }
+      //TASK 2 Escaping HTML
       out.println("<div class=\"blob\">\n"
                 + "  <a href=\"" + prefix + "/" + StringEscapeUtils.escapeHtml4(forum.value.handle) + "/\"><h3 class=\"topic\">" + StringEscapeUtils.escapeHtml4(forum.value.name) + "</h3></a>\n"
                 + "  <div class=\"text\"><ul>" + topiclist.toString() + "</ul></div>"
@@ -264,6 +266,7 @@ public class InforumServer extends AbstractHandler
   private void printThreadBlob(PrintWriter out, String prefix, Stored<Thread> thread) {
       Maybe<Stored<Message>> first = thread.value.messages.head();
       Maybe<String> blabla = first.map(message -> message.value.message);
+      //TASK 2 Escaping HTML
       out.println("<div class=\"blob\">\n"
                 + "  <a href=\"" + prefix + thread.identity + "\"><h3 class=\"topic\">" +
               StringEscapeUtils.escapeHtml4(thread.value.topic) + "</h3></a>\n"
@@ -286,7 +289,8 @@ public class InforumServer extends AbstractHandler
    */
   private void displayFrontPage(PrintWriter out, Stored<UserContext> context) {
         printStandardHead(out);
-        out.println("<title>Inforum – " +
+      //TASK 2 Escaping HTML
+      out.println("<title>Inforum – " +
                 StringEscapeUtils.escapeHtml4(context.value.user.value.name) + "</title>");
         out.println("</head>");
         out.println("<body>");
@@ -354,6 +358,7 @@ public class InforumServer extends AbstractHandler
         out.println("<header>");
         out.println("<h1 class=\"topic\">New thread</h1>");
         out.println("</header>");
+      //TASK 2 Escaping HTML
         out.println("<form class=\"login\" action=\"/forum/" + StringEscapeUtils.escapeHtml4(forum) + "\" method=\"POST\">"
                   + "<input type=\"hidden\" name=\"forum\" value=\"" + StringEscapeUtils.escapeHtml4(forum) + "\">"
                   + "<div class=\"name\"><input type=\"text\" name=\"topic\" placeholder=\"Topic\"></div>"
@@ -416,6 +421,7 @@ public class InforumServer extends AbstractHandler
                      HttpServletResponse response,
                      Stored<Forum> forum,
                      Stored<UserContext> context) throws Maybe.NothingException {
+      //TASK 2 Escaping HTML
       String path = StringEscapeUtils.escapeHtml4(p);
        if (request.getMethod().equals("POST") && request.getParameter("newthread") != null
                && request.getParameter("token").equals(context.identity.toString())) {
@@ -492,6 +498,7 @@ public class InforumServer extends AbstractHandler
 
   private void printForum(final PrintWriter out, final String p, final Stored<Forum> forum) {
     printStandardHead(out);
+      //TASK 2 Escaping HTML
     String name = StringEscapeUtils.escapeHtml4(forum.value.name);
     String path = StringEscapeUtils.escapeHtml4(p);
     out.println("<title>Inforum – " + name + "</title>");
@@ -509,6 +516,7 @@ public class InforumServer extends AbstractHandler
     out.println("  <section class=\"forum\">");
     out.println("  <header><h3>Subforums</h3></header>");
     forum.value.subforums.forEach(
+            //TASK 2 Escaping HTML
           subforum -> {
              printForumBlob(out, "/forum/" + StringEscapeUtils.escapeHtml4(path), subforum);
           }
@@ -517,6 +525,7 @@ public class InforumServer extends AbstractHandler
     out.println("  <section class=\"forum\">");
     out.println("  <header><h3>Threads</h3></header>");
     forum.value.threads.forEach(
+            //TASK 2 Escaping HTML
         thread -> {printThreadBlob(out, "/forum/" + StringEscapeUtils.escapeHtml4(path), thread);});
     out.println("  </section>");
     out.println("</section>");
@@ -530,6 +539,7 @@ public class InforumServer extends AbstractHandler
       try {
           Thread thread = stored.value;
           printStandardHead(out);
+          //TASK 2 Escaping HTML
           String topic = StringEscapeUtils.escapeHtml4(thread.topic);
           out.println("<title>Inforum – " + topic + "</title>");
           out.println("</head>");
@@ -537,6 +547,7 @@ public class InforumServer extends AbstractHandler
           out.println("<section>");
           out.println("  <header class=\"thread-head\">");
           out.println("  <h2 class=\"topic\">" + topic + "</h2>");
+          //TASK 2 Escaping HTML
           final String starter = StringEscapeUtils.escapeHtml4(thread.messages.last.get().value.sender);
           final Instant date = thread.messages.last.get().value.date;
           out.println("  <div class=\"starter\">" + starter + "</div>");
@@ -545,8 +556,10 @@ public class InforumServer extends AbstractHandler
           thread.messages.reverse().forEach (sm -> {
                   final Message m = sm.value;
                   out.println("  <div class=\"entry\">");
+              //TASK 2 Escaping HTML
                   out.println("     <div class=\"user\">" + StringEscapeUtils.escapeHtml4(m.sender) + "</div>");
                   out.println("     <div class=\"text\">" + m.message + "</div>");
+              //TASK 2 Escaping HTML
                   out.println("     <form class=\"controls\" action=\"/forum/" + StringEscapeUtils.escapeHtml4(path) +"\" method=\"POST\">");
                   out.println("        <input class=\"controls\" name=\"message\" type=\"hidden\" value=\""+ sm.identity +"\">");
                   out.println("        <input class=\"controls\" name=\"content\" type=\"hidden\" value=\""+ m.message +"\">");
@@ -555,6 +568,7 @@ public class InforumServer extends AbstractHandler
                   out.println("     </form>");
                   out.println("  </div>");
           });
+          //TASK 2 Escaping HTML
           out.println("<form class=\"entry\" action=\"/forum/" + StringEscapeUtils.escapeHtml4(path) + "\" method=\"post\">");
           out.println("  <div class=\"user\">" + StringEscapeUtils.escapeHtml4(context.value.user.value.name) + "</div>");
           out.println("  <textarea class=\"messagebox\" placeholder=\"Post a message in this thread.\" name=\"message\"></textarea>");
