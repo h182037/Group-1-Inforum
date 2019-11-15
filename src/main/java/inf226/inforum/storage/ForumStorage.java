@@ -1,16 +1,13 @@
 package inf226.inforum.storage;
 
-import java.sql.*;
-import java.util.UUID;
-
-import inf226.inforum.Forum;
-import inf226.inforum.ImmutableList;
-import inf226.inforum.Maybe;
-import inf226.inforum.Mutable;
 import inf226.inforum.Thread;
-import inf226.inforum.Util;
+import inf226.inforum.*;
 
-import javax.xml.transform.Result;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.UUID;
 
 /**
  * TODO: Secure the following for SQL injection vulnerabilities.
@@ -22,8 +19,8 @@ public class ForumStorage implements Storage<Forum,SQLException> {
 
     public ForumStorage(Storage<Thread,SQLException> threadStore, Connection connection) throws SQLException {
       this.threadStore = threadStore;
-      
-      this.connection = connection; 
+
+      this.connection = connection;
     }
 
 
@@ -42,15 +39,16 @@ public class ForumStorage implements Storage<Forum,SQLException> {
       //final String threadsql = "SELECT thread,ordinal FROM ForumThread WHERE forum = '" + id.toString() + "' ORDER BY ordinal DESC";
       //final String subforumsql = "SELECT subforum,ordinal FROM SubForum WHERE forum = '" + id.toString() + "' ORDER BY ordinal DESC";
 
-       PreparedStatement stmt2 = connection.prepareStatement("SELECT thread,ordinal FROM ForumThread WHERE forum = ?");
-       stmt2.setString(1,id.toString());
 
 
-       PreparedStatement stmt = connection.prepareStatement("SELECT version,handle,name FROM Forum WHERE id = ?");
+
+       PreparedStatement stmt = connection.prepareStatement("SELECT version,handle,name FROM Forum WHERE id = ? ");
        stmt.setString(1,id.toString());
 
+       PreparedStatement stmt2 = connection.prepareStatement("SELECT thread,ordinal FROM ForumThread WHERE forum = ? ORDER BY ordinal DESC");
+       stmt2.setString(1,id.toString());
 
-       PreparedStatement stmt3 = connection.prepareStatement("SELECT subforum,ordinal FROM SubForum WHERE forum = ?");
+       PreparedStatement stmt3 = connection.prepareStatement("SELECT subforum,ordinal FROM SubForum WHERE forum = ? ORDER BY ordinal DESC");
        stmt3.setString(1,id.toString());
 
 
@@ -62,15 +60,14 @@ public class ForumStorage implements Storage<Forum,SQLException> {
           final String handle = forumResult.getString("handle");
           final String name = forumResult.getString("name");
 
-
-          final ResultSet threadResult = stmt.executeQuery();
+          final ResultSet threadResult = stmt2.executeQuery();
           // Get all the threads in this forum
           final ImmutableList.Builder<Stored<Thread>> threads = ImmutableList.builder();
           while(threadResult.next()) {
               final UUID threadId = UUID.fromString(threadResult.getString("thread"));
               threads.accept(threadStore.renew(threadId));
           }
-          final ResultSet subforumResult = stmt.executeQuery();
+          final ResultSet subforumResult = stmt3.executeQuery();
           // Get all the subforums in this forum
           final ImmutableList.Builder<Stored<Forum>> subforums = ImmutableList.builder();
           while(subforumResult.next()) {
@@ -150,7 +147,7 @@ public class ForumStorage implements Storage<Forum,SQLException> {
         PreparedStatement stmt2 = connection.prepareStatement("DELETE FROM ForumThread WHERE forum=?");
         stmt2.setString(1,forum.identity.toString());
         stmt2.executeUpdate();
-        
+
         final Maybe.Builder<SQLException> exception = Maybe.builder();
         final Mutable<Integer> ordinal = new Mutable<Integer>(0);
         new_forum.threads.forEach(thread -> {

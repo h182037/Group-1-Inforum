@@ -1,47 +1,105 @@
 package inf226.inforum;
 
+import com.lambdaworks.crypto.SCrypt;
 import com.lambdaworks.crypto.SCryptUtil;
+
+
 import inf226.inforum.storage.DeletedException;
+import inf226.inforum.storage.MessageStorage;
 import inf226.inforum.storage.UserStorage;
 
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
+import java.security.GeneralSecurityException;
+import java.security.MessageDigest;
+import java.security.SecureRandom;
+import java.sql.*;
+
+
+import java.io.Console;
 import java.sql.Connection;
-import java.sql.SQLException;
 import java.time.Instant;
 
 public class User {
-   public final String name;
-   public final String imageURL;
-   public final Instant joined;
-   public final String password;
 
 
-   public User(String name, String password, String imageURL, Instant joined) {
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setImageURL(String imageURL) {
+        this.imageURL = imageURL;
+    }
+
+    public void setJoined(Instant joined) {
+        this.joined = joined;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String name;
+     public String imageURL;
+   public Instant joined;
+    public String password;
+
+
+   public User(String name, String imageURL,Instant joined, String password ) {
      this.name = name;
      this.imageURL = imageURL;
      this.joined = joined;
-     this.password = password;
+       this.password = password;
+   }
+    public User() {
+       this.password ="";
+       this.name = "";
+       this.joined = Instant.now();
+       this.imageURL = "";
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getImageURL() {
+        return imageURL;
+    }
+
+    public Instant getJoined() {
+        return joined;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public boolean checkPassword(String password) throws DeletedException, UnsupportedEncodingException, GeneralSecurityException {
+        boolean check = false;
+
+
+        try {
+            final String dburl = "jdbc:sqlite:" + "production.db";
+           Connection connection = DriverManager.getConnection(dburl);
+            connection.createStatement().executeUpdate("PRAGMA foreign_keys = ON");
+
+            UserStorage userStore = new UserStorage(connection);
+            userStore.initialise();
+
+
+            check = userStore.checkPasswordWithDB(password, getName());
+
+
+        } catch (SQLException e) {
+            System.err.println("Check password"+ e);
+
+
+   }  return check;
+
    }
 
 
 
-    public boolean checkPassword(String password) throws DeletedException {
-        String hashed = SCryptUtil.scrypt(password,16384,8,1);
-        boolean check = true;
-        try {
-            UserStorage us;
-            us = new UserStorage();
-
-            check = us.checkPasswordWithDB(hashed);
-            return check;
-
-        } catch (SQLException e) {
-            System.err.println("Check password" + e);
-        }
-
-        return check;
-
-
-    }
     public boolean checkName(String name) throws SQLException, DeletedException {
         UserStorage us;
         us = new UserStorage();
@@ -62,9 +120,9 @@ public class User {
     final User user_other = (User) other;
     boolean equal = true;
     if(name == null) {
-       equal = equal && user_other.name == null;
-    } else {
-       equal = equal && name.equals(user_other.name);
+            equal = equal && user_other.name == null;
+        } else {
+            equal = equal && name.equals(user_other.name);
     }
        if(password == null) {
            equal = equal && user_other.password == null;

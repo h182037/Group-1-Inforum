@@ -212,7 +212,11 @@ public class StorageTests{
             UserStorage userStore = new UserStorage(connection);
             userStore.initialise();
 
+<<<<<<< HEAD
             User user = new User("Alice", "password", "image",Instant.now());
+=======
+            User user = new User("Alice","password","image",Instant.now());
+>>>>>>> b7a0d488dbcfd41b4b9485ddcb60153e3de171a0
             testSave(userStore,user);
         } catch (SQLException e) {
             fail(e);
@@ -235,7 +239,11 @@ public class StorageTests{
             userStore.initialise();
             contextStore.initialise();
 
+<<<<<<< HEAD
             Stored<User> user0 = userStore.save(new User("alice", "password", "image",Instant.now()));
+=======
+            Stored<User> user0 = userStore.save(new User("alice","password","image",Instant.now()));
+>>>>>>> b7a0d488dbcfd41b4b9485ddcb60153e3de171a0
 
             Message message0 = new Message("Alice","Hello world!",Instant.now());
             Message message1 = new Message("Bob","Hello Alice! What’s up`",Instant.now());

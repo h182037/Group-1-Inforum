@@ -20,12 +20,13 @@ public class UserContextStorage implements Storage<UserContext,SQLException> {
    final Storage<Forum,SQLException> forumStore;
    final Storage<User,SQLException> userStore;
 
+
     public UserContextStorage(Storage<Forum,SQLException> forumStore, 
                               Storage<User,SQLException> userStore,
                               Connection connection) throws SQLException {
       this.forumStore = forumStore;
       this.userStore = userStore;
-      this.connection = connection; 
+      this.connection = connection;
     }
 
 
@@ -36,38 +37,32 @@ public class UserContextStorage implements Storage<UserContext,SQLException> {
                  .executeUpdate("CREATE TABLE IF NOT EXISTS UserContextForum (context TEXT, forum TEXT, ordinal INTEGER, PRIMARY KEY(context, forum), FOREIGN KEY(forum) REFERENCES Forum(id) ON DELETE CASCADE, FOREIGN KEY(context) REFERENCES UserContext(id) ON DELETE CASCADE)");
    }
 
-   @Override
-   public synchronized Stored<UserContext> renew(UUID id) throws DeletedException,SQLException {
+    @Override
+    public synchronized Stored<UserContext> renew(UUID id) throws DeletedException,SQLException {
+        final String contextsql = "SELECT version,user FROM UserContext WHERE id = '" + id.toString() + "'";
+        final String forumsql = "SELECT forum,ordinal FROM UserContextForum WHERE context = '" + id.toString() + "' ORDER BY ordinal DESC";
 
+        final Statement contextStatement = connection.createStatement();
+        final Statement forumStatement = connection.createStatement();
 
+        final ResultSet contextResult = contextStatement.executeQuery(contextsql);
+        final ResultSet forumResult = forumStatement.executeQuery(forumsql);
 
-      final Statement contextStatement = connection.createStatement();
-      final Statement forumStatement = connection.createStatement();
+        if(contextResult.next()) {
+            final UUID version = UUID.fromString(contextResult.getString("version"));
+            final Stored<User> user = userStore.renew(UUID.fromString(contextResult.getString("user")));
+            // Get all the forums in this context
+            final ImmutableList.Builder<Stored<Forum>> forums = ImmutableList.builder();
+            while(forumResult.next()) {
+                final UUID forumId = UUID.fromString(forumResult.getString("forum"));
+                forums.accept(forumStore.renew(forumId));
+            }
+            return (new Stored<UserContext>(new UserContext(user,forums.getList()),id,version));
+        } else {
+            throw new DeletedException();
+        }
+    }
 
-       PreparedStatement stmt = connection.prepareStatement("SELECT version,user FROM UserContext WHERE id = ?");
-       stmt.setString(1,id.toString());
-
-       PreparedStatement stmt2 = connection.prepareStatement("SELECT forum,ordinal FROM UserContextForum WHERE context = ?");
-       stmt2.setString(1, id.toString());
-
-      final ResultSet contextResult = stmt.executeQuery();
-      final ResultSet forumResult = stmt2.executeQuery();
-
-
-      if(contextResult.next()) {
-          final UUID version = UUID.fromString(contextResult.getString("version"));
-          final Stored<User> user = userStore.renew(UUID.fromString(contextResult.getString("user")));
-          // Get all the forums in this context
-          final ImmutableList.Builder<Stored<Forum>> forums = ImmutableList.builder();
-          while(forumResult.next()) {
-              final UUID forumId = UUID.fromString(forumResult.getString("forum"));
-              forums.accept(forumStore.renew(forumId));
-          }
-          return (new Stored<UserContext>(new UserContext(user,forums.getList()),id,version));
-      } else {
-          throw new DeletedException();
-      }
-   }
 
    @Override
    public synchronized Stored<UserContext> save(UserContext context) throws SQLException {

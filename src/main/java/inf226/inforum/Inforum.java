@@ -1,18 +1,20 @@
 package inf226.inforum;
 
 
-import java.util.UUID;
+import com.lambdaworks.crypto.SCryptUtil;
+import inf226.inforum.storage.*;
+import org.apache.commons.text.StringEscapeUtils;
 
 import java.io.Closeable;
 import java.io.IOException;
-
-import java.sql.DriverManager;
+import java.io.UnsupportedEncodingException;
+import java.security.GeneralSecurityException;
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.SQLException;
-
 import java.time.Instant;
-import inf226.inforum.storage.*;
-import inf226.inforum.storage.DeletedException;
+import java.util.UUID;
+
 
 
 /**
@@ -78,10 +80,18 @@ public class Inforum implements Closeable
   /**
    *  Register a new user.
    */
-  public Maybe<Stored<UserContext>> registerUser(String username, String password) {
-     try {
-        Stored<User> user = userStore.save(new User(username, password, "/img/user.svg",Instant.now()));
+  public Maybe<Stored<UserContext>> registerUser(String username, String password) throws UnsupportedEncodingException, GeneralSecurityException  {
+
+     String hashed = SCryptUtil.scrypt(password, 16384,8,1);
+
+
+      try {
+
+       Stored<User> user = userStore.save(new User(username, "/img/user.svg",Instant.now(), hashed));
+
+
         return Maybe.just(contextStore.save(new UserContext(user)));
+
      } catch (SQLException e) {
          // Mostlikely the username is not unique
          System.err.println("Register user in inforum: " + e);
@@ -132,7 +142,7 @@ public class Inforum implements Closeable
         // We fill out some values automatically.
         Stored<Message> m 
             = messageStore.save(new Message(context.value.user.value.name,
-                                            message,
+                StringEscapeUtils.escapeHtml4(message),
                                             Instant.now()));
         Util.updateSingle(thread, threadStore,
           t -> t.value.addMessage(m));
@@ -204,8 +214,9 @@ public class Inforum implements Closeable
 
   public void editMessage(UUID message, String content, Stored<UserContext> context) {
       try {
+         String con = StringEscapeUtils.escapeHtml4(content);
          Util.updateSingle(messageStore.renew(message), messageStore,
-            msg -> msg.value.setMessage(content));
+            msg -> msg.value.setMessage(con));
       } catch (Exception e) {
          System.err.println(e);
       }

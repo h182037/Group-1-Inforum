@@ -1,11 +1,15 @@
 package inf226.inforum.storage;
 
-import java.sql.*;
-import java.time.Instant;
-import java.util.UUID;
-
+import com.lambdaworks.crypto.SCryptUtil;
 import inf226.inforum.Maybe;
 import inf226.inforum.User;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.time.Instant;
+import java.util.UUID;
 
 import static inf226.inforum.Maybe.just;
 
@@ -31,21 +35,24 @@ public class UserStorage implements Storage<User,SQLException> {
          //  connection.createStatement().executeUpdate("ALTER TABLE User ALTER COLUMN password TEXT");
 
 
+
     }
+
+
 
    @Override
    public Stored<User> save(User user) throws SQLException {
      final Stored<User> stored = new Stored<User>(user);
-      // connection.createStatement().executeUpdate("ALTER TABLE User ALTER COLUMN password TEXT");
 
+     // connection.createStatement().executeUpdate("ALTER TABLE User add COLUMN password TEXT");
+       //connection.createStatement().executeUpdate("ALTER TABLE User drop COLUMN password");
     PreparedStatement stmt = connection.prepareStatement("INSERT INTO User VALUES(?,?,?,?,?,?)");
     stmt.setString(1, stored.identity.toString());
     stmt.setString(2, stored.version.toString());
     stmt.setString(3, user.name);
-    stmt.setString(4, user.password);
-    stmt.setString(5, user.imageURL);
-    stmt.setString(6, user.joined.toString());
-
+    stmt.setString(4, user.imageURL);
+    stmt.setString(5, user.joined.toString());
+    stmt.setString(6, user.password);
     stmt.executeUpdate();
 
 
@@ -99,10 +106,13 @@ public class UserStorage implements Storage<User,SQLException> {
       if(rs.next()) {
           final UUID version = UUID.fromString(rs.getString("version"));
           final String name = rs.getString("name");
-          final String password = rs.getString("password");
           final String imageURL = rs.getString("imageURL");
           final Instant joined = Instant.parse(rs.getString("joined"));
-          return (new Stored<User>(new User(name, password, imageURL, joined),id,version));
+          User u = new User();
+          u.setImageURL(imageURL);
+          u.setJoined(joined);
+          u.setName(name);
+          return (new Stored<User>(u, id,version));
       } else {
           throw new DeletedException();
       }
@@ -131,22 +141,32 @@ public class UserStorage implements Storage<User,SQLException> {
 
    }
 
-   public synchronized boolean checkPasswordWithDB(String hash) throws SQLException, DeletedException {
-        final String sql = "SELECT password FROM User WHERE password ='" + hash + "'";
-        final Statement statement = connection.createStatement();
-        final ResultSet rs = statement.executeQuery(sql);
+   public synchronized boolean checkPasswordWithDB( String passwordInput, String username) throws SQLException, DeletedException {
+
+       PreparedStatement stmt = connection.prepareStatement("SELECT password FROM User WHERE name = ?");
+       stmt.setString(1,username);
+       final ResultSet rs = stmt.executeQuery();
+        //final String sql = "SELECT name, password FROM User WHERE password = ?";
+
+        //final Statement statement = connection.createStatement();
+       // final ResultSet rs = statement.executeQuery(sql);
         String password = null;
         String name = null;
-        if(rs.next()) {
-            final UUID id = UUID.fromString(rs.getString("password"));
-            name = rs.getString("name");
+        String user_id = null;
 
-          password = renewPassword((id));
-          if(hash.equals(password) && checkName(name)) {
+        if(rs.next()) {
+           // final UUID id = UUID.fromString(rs.getString("password"));
+            password = rs.getString("password");
+           // name = rs.getString("name");
+            if(SCryptUtil.check(passwordInput, password)) {
+                connection.close();
                 return true;
-        }
+
+            }
+
 
        }
+       connection.close();
        return false;
    }
 
@@ -176,6 +196,7 @@ public class UserStorage implements Storage<User,SQLException> {
             if(rs.next()) {
                 final String dbName = rs.getString("id");
                 return true;
+
             }
         } catch (SQLException e) {
             System.out.println("getuserAUTH" + e);

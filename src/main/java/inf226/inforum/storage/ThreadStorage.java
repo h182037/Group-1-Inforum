@@ -1,14 +1,10 @@
 package inf226.inforum.storage;
 
+import inf226.inforum.Thread;
+import inf226.inforum.*;
+
 import java.sql.*;
 import java.util.UUID;
-
-import inf226.inforum.ImmutableList;
-import inf226.inforum.Maybe;
-import inf226.inforum.Message;
-import inf226.inforum.Mutable;
-import inf226.inforum.Thread;
-import inf226.inforum.Util;
 
 /**
  * TODO: Secure the following for SQL injection vulnerabilities.
@@ -20,8 +16,8 @@ public class ThreadStorage implements Storage<Thread,SQLException> {
 
     public ThreadStorage(Storage<Message,SQLException> messageStore, Connection connection) throws SQLException {
       this.messageStore = messageStore;
-      
-      this.connection = connection; 
+
+      this.connection = connection;
     }
 
 
@@ -43,7 +39,7 @@ public class ThreadStorage implements Storage<Thread,SQLException> {
       stmt.setString(1, id.toString());
       final ResultSet threadResult = stmt.executeQuery();
 
-      PreparedStatement stmt2 = connection.prepareStatement("SELECT message,ordinal FROM ThreadMessage WHERE thread = ?");
+      PreparedStatement stmt2 = connection.prepareStatement("SELECT message,ordinal FROM ThreadMessage WHERE thread = ? ORDER BY ordinal DESC");
       stmt2.setString(1,id.toString());
       final ResultSet messageResult = stmt2.executeQuery();
 
@@ -93,7 +89,7 @@ public class ThreadStorage implements Storage<Thread,SQLException> {
       });
 
      Util.throwMaybe(exception.getMaybe());
-         
+
      return stored;
    }
 
