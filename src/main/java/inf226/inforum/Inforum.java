@@ -196,7 +196,12 @@ public class Inforum implements Closeable
    */
   public void deleteMessage(UUID message, Stored<UserContext> context) {
      try {
-        messageStore.delete(messageStore.renew(message));
+        Stored<User> user = userStore.renew(context.value.user.identity);
+        Stored<Message> mess = messageStore.renew(message);
+
+        if(user.value.name.equals(mess.value.sender)) {
+            messageStore.delete(messageStore.renew(message));
+        }
      } catch (Exception e) {
         System.err.println(e);
      }
@@ -215,8 +220,13 @@ public class Inforum implements Closeable
   public void editMessage(UUID message, String content, Stored<UserContext> context) {
       try {
          String con = StringEscapeUtils.escapeHtml4(content);
-         Util.updateSingle(messageStore.renew(message), messageStore,
-            msg -> msg.value.setMessage(con));
+          Stored<User> user = userStore.renew(context.value.user.identity);
+          Stored<Message> mess = messageStore.renew(message);
+
+          if(user.value.name.equals(mess.value.sender)) {
+              Util.updateSingle(messageStore.renew(message), messageStore,
+                      msg -> msg.value.setMessage(con));
+          }
       } catch (Exception e) {
          System.err.println(e);
       }

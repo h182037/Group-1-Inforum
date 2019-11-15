@@ -31,9 +31,6 @@ public class Util{
     }
 
 
-
-
-
 public static boolean checkPassword(String password) {
         boolean valid = true;
         if(password.length() < 8 || password.length() > 64) {
@@ -51,10 +48,8 @@ public static boolean checkPassword(String password) {
                 }
             }
         }
-
         return valid;
     }
-
 
     public static<A,Q, E extends Exception> Stored<A> updateSingle(Stored<A> stored, Storage<A,E> storage, Function<Stored<A>,A> update) throws E, DeletedException{
       boolean updated = true;

@@ -1,22 +1,22 @@
-C:\Skule\INF226 programvaresikkerhet\NYoblig\Group-1-Inforum\src\main\java\inf226\inforum\storage\Stored.java
-C:\Skule\INF226 programvaresikkerhet\NYoblig\Group-1-Inforum\src\main\java\inf226\inforum\Forum.java
-C:\Skule\INF226 programvaresikkerhet\NYoblig\Group-1-Inforum\src\main\java\inf226\inforum\storage\DeletedException.java
-C:\Skule\INF226 programvaresikkerhet\NYoblig\Group-1-Inforum\src\main\java\inf226\inforum\storage\Storage.java
-C:\Skule\INF226 programvaresikkerhet\NYoblig\Group-1-Inforum\src\main\java\inf226\inforum\storage\UpdatedException.java
-C:\Skule\INF226 programvaresikkerhet\NYoblig\Group-1-Inforum\src\main\java\inf226\inforum\storage\UserContextStorage.java
-C:\Skule\INF226 programvaresikkerhet\NYoblig\Group-1-Inforum\src\main\java\inf226\inforum\UserContext.java
-C:\Skule\INF226 programvaresikkerhet\NYoblig\Group-1-Inforum\src\main\java\inf226\inforum\storage\MessageStorage.java
-C:\Skule\INF226 programvaresikkerhet\NYoblig\Group-1-Inforum\src\main\java\inf226\inforum\Thread.java
-C:\Skule\INF226 programvaresikkerhet\NYoblig\Group-1-Inforum\src\main\java\inf226\inforum\storage\ForumStorage.java
-C:\Skule\INF226 programvaresikkerhet\NYoblig\Group-1-Inforum\src\main\java\inf226\inforum\storage\UserStorage.java
-C:\Skule\INF226 programvaresikkerhet\NYoblig\Group-1-Inforum\src\main\java\inf226\inforum\InforumServer.java
-C:\Skule\INF226 programvaresikkerhet\NYoblig\Group-1-Inforum\src\main\java\inf226\inforum\Maybe.java
-C:\Skule\INF226 programvaresikkerhet\NYoblig\Group-1-Inforum\src\main\java\inf226\inforum\ImmutableList.java
-C:\Skule\INF226 programvaresikkerhet\NYoblig\Group-1-Inforum\src\main\java\inf226\inforum\Mutable.java
-C:\Skule\INF226 programvaresikkerhet\NYoblig\Group-1-Inforum\src\main\java\inf226\inforum\Either.java
-C:\Skule\INF226 programvaresikkerhet\NYoblig\Group-1-Inforum\src\main\java\inf226\inforum\storage\ThreadStorage.java
-C:\Skule\INF226 programvaresikkerhet\NYoblig\Group-1-Inforum\src\main\java\inf226\inforum\Message.java
-C:\Skule\INF226 programvaresikkerhet\NYoblig\Group-1-Inforum\src\main\java\inf226\inforum\Inforum.java
-C:\Skule\INF226 programvaresikkerhet\NYoblig\Group-1-Inforum\src\main\java\inf226\inforum\User.java
-C:\Skule\INF226 programvaresikkerhet\NYoblig\Group-1-Inforum\src\main\java\inf226\inforum\Pair.java
-C:\Skule\INF226 programvaresikkerhet\NYoblig\Group-1-Inforum\src\main\java\inf226\inforum\Util.java
+C:\Users\Sindre\Desktop\Inforum\inf226-2019-inforum\src\main\java\inf226\inforum\Either.java
+C:\Users\Sindre\Desktop\Inforum\inf226-2019-inforum\src\main\java\inf226\inforum\InforumServer.java
+C:\Users\Sindre\Desktop\Inforum\inf226-2019-inforum\src\main\java\inf226\inforum\Forum.java
+C:\Users\Sindre\Desktop\Inforum\inf226-2019-inforum\src\main\java\inf226\inforum\storage\Storage.java
+C:\Users\Sindre\Desktop\Inforum\inf226-2019-inforum\src\main\java\inf226\inforum\storage\MessageStorage.java
+C:\Users\Sindre\Desktop\Inforum\inf226-2019-inforum\src\main\java\inf226\inforum\storage\UserContextStorage.java
+C:\Users\Sindre\Desktop\Inforum\inf226-2019-inforum\src\main\java\inf226\inforum\Maybe.java
+C:\Users\Sindre\Desktop\Inforum\inf226-2019-inforum\src\main\java\inf226\inforum\storage\ForumStorage.java
+C:\Users\Sindre\Desktop\Inforum\inf226-2019-inforum\src\main\java\inf226\inforum\Pair.java
+C:\Users\Sindre\Desktop\Inforum\inf226-2019-inforum\src\main\java\inf226\inforum\storage\UpdatedException.java
+C:\Users\Sindre\Desktop\Inforum\inf226-2019-inforum\src\main\java\inf226\inforum\Mutable.java
+C:\Users\Sindre\Desktop\Inforum\inf226-2019-inforum\src\main\java\inf226\inforum\storage\UserStorage.java
+C:\Users\Sindre\Desktop\Inforum\inf226-2019-inforum\src\main\java\inf226\inforum\Message.java
+C:\Users\Sindre\Desktop\Inforum\inf226-2019-inforum\src\main\java\inf226\inforum\storage\DeletedException.java
+C:\Users\Sindre\Desktop\Inforum\inf226-2019-inforum\src\main\java\inf226\inforum\ImmutableList.java
+C:\Users\Sindre\Desktop\Inforum\inf226-2019-inforum\src\main\java\inf226\inforum\User.java
+C:\Users\Sindre\Desktop\Inforum\inf226-2019-inforum\src\main\java\inf226\inforum\Inforum.java
+C:\Users\Sindre\Desktop\Inforum\inf226-2019-inforum\src\main\java\inf226\inforum\Thread.java
+C:\Users\Sindre\Desktop\Inforum\inf226-2019-inforum\src\main\java\inf226\inforum\Util.java
+C:\Users\Sindre\Desktop\Inforum\inf226-2019-inforum\src\main\java\inf226\inforum\storage\ThreadStorage.java
+C:\Users\Sindre\Desktop\Inforum\inf226-2019-inforum\src\main\java\inf226\inforum\storage\Stored.java
+C:\Users\Sindre\Desktop\Inforum\inf226-2019-inforum\src\main\java\inf226\inforum\UserContext.java
