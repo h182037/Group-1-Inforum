@@ -6,6 +6,8 @@ import java.util.UUID;
 
 import inf226.inforum.ImmutableList;
 import inf226.inforum.Message;
+import inf226.inforum.User;
+import inf226.inforum.UserContext;
 
 /**
  * TODO: Secure the following for SQL injection vulnerabilities.
@@ -63,7 +65,6 @@ public class MessageStorage implements Storage<Message,SQLException> {
    public synchronized void delete(Stored<Message> message) throws UpdatedException,DeletedException,SQLException {
      final Stored<Message> current = renew(message.identity);
      if(current.version.equals(message.version)) {
-
          PreparedStatement stmt = connection.prepareStatement("DELETE FROM Message WHERE id =?");
          stmt.setString(1,message.identity.toString());
          stmt.executeUpdate();
